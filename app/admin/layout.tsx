@@ -13,7 +13,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
       <header className="topbar">
         <div className="topbar-inner">
           <Link href="/admin" className="topbar-brand">
-            Suivi ROP — Institut
+            Suivi R.O.P. — Institut
           </Link>
           <nav aria-label="Navigation administration">
             <Link href="/admin">Réseau</Link>

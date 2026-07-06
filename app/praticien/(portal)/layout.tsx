@@ -19,7 +19,7 @@ export default async function PortalLayout({ children }: { children: React.React
       <header className="topbar">
         <div className="topbar-inner">
           <Link href="/praticien" className="topbar-brand">
-            Suivi ROP
+            Suivi R.O.P.
           </Link>
           <nav aria-label="Navigation principale">
             <Link href="/praticien">Tableau de bord</Link>

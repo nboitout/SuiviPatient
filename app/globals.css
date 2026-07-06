@@ -1,19 +1,36 @@
+/* Charte graphique héritée de guy-boitout.com :
+   encre / crème / parchemin, vert sauge, accents or,
+   Cormorant Garamond (titres) + DM Sans (texte). */
+
 :root {
-  --bg: #f7f8fa;
-  --surface: #ffffff;
-  --text: #1a2332;
-  --text-soft: #55606e;
-  --primary: #1f6f63;
-  --primary-dark: #175349;
-  --primary-soft: #e4f1ee;
-  --border: #dde2e8;
-  --danger: #b3261e;
-  --danger-soft: #fdeceb;
-  --warning: #8a5300;
-  --warning-soft: #fdf3e1;
-  --ok: #1f6f3d;
-  --ok-soft: #e6f4ea;
-  --radius: 12px;
+  --ink: #1a1a18;
+  --cream: #f5f0e8;
+  --parch: #ede7d9;
+  --sage: #4a6b5a;
+  --sage-dark: #3a5a4a;
+  --sage-pale: #e8ede9;
+  --gold: #a07c3a;
+  --gold-l: #c9a35e;
+  --gold-text: #8a6a30; /* or assombri pour le texte de petite taille (contraste) */
+  --i70: rgba(26, 26, 24, 0.78);
+  --i50: rgba(26, 26, 24, 0.6);
+  --i08: rgba(26, 26, 24, 0.08);
+
+  --bg: var(--cream);
+  --surface: #fffdf8;
+  --text: var(--ink);
+  --text-soft: var(--i50);
+  --primary: var(--sage);
+  --primary-dark: var(--sage-dark);
+  --primary-soft: var(--sage-pale);
+  --border: rgba(26, 26, 24, 0.1);
+  --danger: #a03a2e;
+  --danger-soft: #f7e8e4;
+  --warning: #8a6a30;
+  --warning-soft: #f5ecd9;
+  --ok: #4a6b5a;
+  --ok-soft: #e8ede9;
+  --radius: 3px;
 }
 
 * {
@@ -28,8 +45,7 @@ body {
   margin: 0;
   background: var(--bg);
   color: var(--text);
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial,
-    sans-serif;
+  font-family: var(--font-sans), "DM Sans", -apple-system, sans-serif;
   font-size: 16px;
   line-height: 1.55;
 }
@@ -38,15 +54,56 @@ a {
   color: var(--primary);
 }
 
+h1,
+h2,
+h3 {
+  font-family: var(--font-serif), "Cormorant Garamond", Georgia, serif;
+  font-weight: 400;
+  line-height: 1.15;
+  letter-spacing: 0.01em;
+}
+
 h1 {
-  font-size: 1.45rem;
-  line-height: 1.3;
+  font-size: 2rem;
+  font-weight: 300;
 }
 h2 {
-  font-size: 1.15rem;
+  font-size: 1.45rem;
 }
 h3 {
-  font-size: 1rem;
+  font-size: 1.15rem;
+}
+
+h1 em,
+h2 em {
+  font-style: italic;
+  color: var(--sage);
+}
+
+/* Étiquette-amorce (kicker) de la charte : petites capitales espacées + trait */
+.lbl {
+  font-size: 0.66rem;
+  font-weight: 500;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--sage);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+.lbl::before {
+  content: "";
+  width: 24px;
+  height: 1px;
+  background: var(--sage);
+  opacity: 0.5;
+}
+.lbl.g {
+  color: var(--gold-text);
+}
+.lbl.g::before {
+  background: var(--gold);
 }
 
 .container {
@@ -63,10 +120,11 @@ h3 {
 
 .card {
   background: var(--surface);
-  border: 1px solid var(--border);
+  border: 1px solid var(--i08);
   border-radius: var(--radius);
-  padding: 20px;
+  padding: 22px 24px;
   margin-bottom: 16px;
+  box-shadow: 0 6px 22px rgba(26, 26, 24, 0.05);
 }
 
 .muted {
@@ -74,45 +132,55 @@ h3 {
   font-size: 0.9rem;
 }
 
-/* ---------- Boutons : grandes cibles tactiles (PAT-09) ---------- */
+/* ---------- Boutons : style charte (capitales espacées, radius 2px),
+   grandes cibles tactiles conservées (PAT-09) ---------- */
 
 .btn {
   display: inline-block;
   min-height: 48px;
-  padding: 12px 24px;
+  padding: 14px 26px;
   border: none;
-  border-radius: var(--radius);
-  background: var(--primary);
-  color: #fff;
-  font-size: 1rem;
-  font-weight: 600;
+  border-radius: 2px;
+  background: var(--sage);
+  color: var(--cream);
+  font-family: var(--font-sans), "DM Sans", sans-serif;
+  font-size: 0.78rem;
+  font-weight: 500;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
   cursor: pointer;
   text-decoration: none;
   text-align: center;
+  box-shadow: 0 4px 16px rgba(74, 107, 90, 0.28);
+  transition: transform 0.2s, box-shadow 0.2s, background 0.2s;
 }
 .btn:hover {
-  background: var(--primary-dark);
+  background: var(--sage-dark);
+  transform: translateY(-2px);
 }
 .btn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+  transform: none;
 }
 .btn-block {
   display: block;
   width: 100%;
 }
 .btn-secondary {
-  background: var(--surface);
-  color: var(--primary);
-  border: 2px solid var(--primary);
+  background: transparent;
+  color: var(--sage);
+  border: 1px solid var(--sage);
+  box-shadow: none;
 }
 .btn-secondary:hover {
-  background: var(--primary-soft);
+  background: var(--sage);
+  color: var(--cream);
 }
 .btn-small {
   min-height: 36px;
-  padding: 6px 14px;
-  font-size: 0.875rem;
+  padding: 8px 14px;
+  font-size: 0.68rem;
 }
 
 /* ---------- Formulaires ---------- */
@@ -120,7 +188,7 @@ h3 {
 label,
 .field-label {
   display: block;
-  font-weight: 600;
+  font-weight: 500;
   margin-bottom: 6px;
 }
 
@@ -153,7 +221,7 @@ select:focus-visible,
 textarea:focus-visible,
 button:focus-visible,
 a:focus-visible {
-  outline: 3px solid #7db8ac;
+  outline: 3px solid rgba(74, 107, 90, 0.55);
   outline-offset: 1px;
 }
 
@@ -192,19 +260,23 @@ a:focus-visible {
   justify-content: center;
   min-height: 44px;
   border: 1px solid var(--border);
-  border-radius: 8px;
+  border-radius: 2px;
   background: var(--surface);
-  font-weight: 600;
+  font-weight: 500;
   cursor: pointer;
   margin: 0;
+  transition: background 0.15s, border-color 0.15s;
+}
+.scale-grid label:hover {
+  border-color: var(--sage);
 }
 .scale-grid input:checked + label {
-  background: var(--primary);
-  border-color: var(--primary);
-  color: #fff;
+  background: var(--sage);
+  border-color: var(--sage);
+  color: var(--cream);
 }
 .scale-grid input:focus-visible + label {
-  outline: 3px solid #7db8ac;
+  outline: 3px solid rgba(74, 107, 90, 0.55);
 }
 .scale-labels {
   display: flex;
@@ -232,17 +304,22 @@ a:focus-visible {
   cursor: pointer;
   font-weight: 400;
   margin: 0;
+  transition: border-color 0.15s, background 0.15s;
+}
+.choice-item:hover {
+  border-color: rgba(74, 107, 90, 0.45);
 }
 .choice-item input {
   width: 22px;
   height: 22px;
   min-height: 0;
   flex: 0 0 22px;
-  accent-color: var(--primary);
+  accent-color: var(--sage);
 }
 .choice-item:has(input:checked) {
-  border-color: var(--primary);
-  background: var(--primary-soft);
+  border-color: var(--sage);
+  background: var(--sage-pale);
+  box-shadow: inset 3px 0 0 var(--sage);
 }
 
 /* ---------- Messages ---------- */
@@ -254,55 +331,62 @@ a:focus-visible {
 }
 .notice-danger {
   background: var(--danger-soft);
-  border: 1px solid #e8b5b2;
-  color: #7a1a14;
+  border: 1px solid #ddb3aa;
+  color: #6f281f;
 }
 .notice-warning {
   background: var(--warning-soft);
-  border: 1px solid #ecd3a3;
-  color: #6b4100;
+  border: 1px solid #dcc79a;
+  color: #64491c;
 }
 .notice-ok {
   background: var(--ok-soft);
-  border: 1px solid #b3dcc0;
-  color: #14512b;
+  border: 1px solid #b9cec2;
+  color: #2e4a3b;
 }
 .notice-info {
-  background: var(--primary-soft);
-  border: 1px solid #bcd9d2;
-  color: var(--primary-dark);
+  background: var(--parch);
+  border: 1px solid rgba(160, 124, 58, 0.28);
+  color: var(--ink);
 }
 
 /* ---------- Badges & tableaux ---------- */
 
 .badge {
   display: inline-block;
-  padding: 2px 10px;
-  border-radius: 999px;
-  font-size: 0.78rem;
-  font-weight: 600;
+  padding: 3px 11px;
+  border-radius: 20px;
+  font-size: 0.68rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
   white-space: nowrap;
 }
 .badge-high {
   background: var(--danger-soft);
-  color: var(--danger);
+  color: #8a2f24;
+  border: 1px solid rgba(160, 58, 46, 0.3);
 }
 .badge-medium {
   background: var(--warning-soft);
   color: var(--warning);
+  border: 1px solid rgba(160, 124, 58, 0.35);
 }
 .badge-low,
 .badge-neutral {
-  background: #eef0f3;
-  color: var(--text-soft);
+  background: var(--parch);
+  color: var(--i50);
+  border: 1px solid var(--i08);
 }
 .badge-ok {
   background: var(--ok-soft);
-  color: var(--ok);
+  color: var(--sage-dark);
+  border: 1px solid rgba(74, 107, 90, 0.3);
 }
 .badge-primary {
-  background: var(--primary-soft);
-  color: var(--primary-dark);
+  background: var(--sage-pale);
+  color: var(--sage-dark);
+  border: 1px solid rgba(74, 107, 90, 0.3);
 }
 
 .table-wrap {
@@ -317,52 +401,62 @@ th,
 td {
   text-align: left;
   padding: 10px 12px;
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid var(--i08);
   vertical-align: top;
 }
 th {
-  color: var(--text-soft);
-  font-weight: 600;
-  font-size: 0.8rem;
+  color: var(--i50);
+  font-weight: 500;
+  font-size: 0.68rem;
   text-transform: uppercase;
-  letter-spacing: 0.03em;
+  letter-spacing: 0.14em;
 }
 
 /* ---------- Barre de navigation portail ---------- */
 
 .topbar {
-  background: var(--surface);
-  border-bottom: 1px solid var(--border);
+  background: rgba(245, 240, 232, 0.96);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid rgba(160, 124, 58, 0.16);
+  box-shadow: 0 2px 20px rgba(26, 26, 24, 0.06);
 }
 .topbar-inner {
   max-width: 1080px;
   margin: 0 auto;
-  padding: 10px 16px;
+  padding: 12px 16px;
   display: flex;
   align-items: center;
-  gap: 18px;
+  gap: 20px;
   flex-wrap: wrap;
 }
 .topbar-brand {
-  font-weight: 700;
-  color: var(--primary-dark);
+  font-family: var(--font-serif), "Cormorant Garamond", Georgia, serif;
+  font-size: 1rem;
+  font-weight: 400;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--sage);
   text-decoration: none;
-  font-size: 1.05rem;
 }
 .topbar nav {
   display: flex;
-  gap: 14px;
+  gap: 20px;
   flex-wrap: wrap;
 }
 .topbar nav a {
   text-decoration: none;
-  color: var(--text-soft);
-  font-weight: 600;
-  font-size: 0.92rem;
+  color: var(--ink);
+  opacity: 0.78;
+  font-weight: 500;
+  font-size: 0.72rem;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
   padding: 6px 2px;
+  transition: opacity 0.2s, color 0.2s;
 }
 .topbar nav a:hover {
-  color: var(--primary-dark);
+  opacity: 1;
+  color: var(--sage);
 }
 .topbar-spacer {
   flex: 1;
@@ -370,20 +464,21 @@ th {
 
 /* Barre de progression questionnaire */
 .progress-track {
-  height: 8px;
-  background: var(--border);
+  height: 6px;
+  background: var(--parch);
   border-radius: 999px;
   overflow: hidden;
   margin-bottom: 20px;
+  border: 1px solid var(--i08);
 }
 .progress-fill {
   height: 100%;
-  background: var(--primary);
+  background: linear-gradient(90deg, var(--sage) 0%, var(--gold) 140%);
   border-radius: 999px;
   transition: width 0.25s ease;
 }
 
-/* Tuiles de statistiques */
+/* Tuiles de statistiques — chiffres en serif comme la charte */
 .stat-row {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
@@ -392,18 +487,25 @@ th {
 }
 .stat-tile {
   background: var(--surface);
-  border: 1px solid var(--border);
+  border: 1px solid var(--i08);
+  border-left: 3px solid var(--sage);
   border-radius: var(--radius);
-  padding: 14px 16px;
+  padding: 16px 18px;
 }
 .stat-value {
-  font-size: 1.6rem;
-  font-weight: 700;
-  color: var(--primary-dark);
+  font-family: var(--font-serif), "Cormorant Garamond", Georgia, serif;
+  font-size: 2.2rem;
+  font-weight: 300;
+  color: var(--sage);
+  line-height: 1;
+  margin-bottom: 6px;
 }
 .stat-label {
-  font-size: 0.82rem;
-  color: var(--text-soft);
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--i50);
+  line-height: 1.4;
 }
 
 @media (max-width: 480px) {

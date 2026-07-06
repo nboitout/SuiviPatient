@@ -93,6 +93,7 @@ export default function PatientFlow({ token, form, needsConsent, hasContact }: P
   if (step === "consent") {
     return (
       <div style={{ paddingTop: 24 }}>
+        <p className="lbl g">Suivi patient R.O.P.</p>
         <h1>Avant de commencer</h1>
         <div className="card">
           <h2>Information</h2>
@@ -219,6 +220,7 @@ export default function PatientFlow({ token, form, needsConsent, hasContact }: P
 
   return (
     <div style={{ paddingTop: 24 }}>
+      <p className="lbl g">Suivi patient R.O.P.</p>
       <h1>{form.title}</h1>
       <p className="muted">{form.intro}</p>
       <div

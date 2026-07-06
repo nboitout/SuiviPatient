@@ -11,7 +11,8 @@ import {
   ResponsiveContainer,
 } from "recharts";
 
-const COLORS = ["#1f6f63", "#b3261e", "#4a6fa5", "#8a5300", "#6b4a8a", "#1f6f3d"];
+// Palette de la charte : sauge, or, encre + tons complémentaires assortis
+const COLORS = ["#4a6b5a", "#a07c3a", "#1a1a18", "#a03a2e", "#52708c", "#7a5a80"];
 
 export default function EvolutionChart({
   data,
@@ -24,7 +25,7 @@ export default function EvolutionChart({
     <div style={{ width: "100%", height: 320 }}>
       <ResponsiveContainer>
         <LineChart data={data} margin={{ top: 8, right: 16, bottom: 4, left: -16 }}>
-          <CartesianGrid strokeDasharray="3 3" stroke="#dde2e8" />
+          <CartesianGrid strokeDasharray="3 3" stroke="#e3ddd0" />
           <XAxis dataKey="name" />
           <YAxis domain={[0, 10]} tickCount={6} />
           <Tooltip />
