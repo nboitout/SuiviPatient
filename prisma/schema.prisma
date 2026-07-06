@@ -8,9 +8,9 @@ generator client {
 }
 
 datasource db {
-  // SQLite pour le pilote / développement.
-  // Passage à PostgreSQL (hébergement UE) : provider = "postgresql" + DATABASE_URL.
-  provider = "sqlite"
+  // PostgreSQL — compatible Vercel (Neon/Vercel Postgres, région UE de préférence).
+  // DATABASE_URL dans .env en local, dans les variables d'environnement Vercel en prod.
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 

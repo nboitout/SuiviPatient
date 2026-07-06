@@ -15,9 +15,14 @@ diagnostic**).
 
 ## Démarrage rapide
 
+Prérequis : Node.js ≥ 20 et une base PostgreSQL (gratuite sur [neon.tech](https://neon.tech)
+— choisir une région UE — ou locale via Docker :
+`docker run -d -p 5432:5432 -e POSTGRES_PASSWORD=dev -e POSTGRES_DB=suivipatient postgres:16`).
+
 ```bash
 npm install
-npx prisma db push        # crée la base SQLite locale (prisma/dev.db)
+cp .env.example .env      # puis renseigner DATABASE_URL
+npx prisma db push        # crée les tables
 npm run db:seed           # comptes de démo + 8 épisodes d'exemple
 npm run dev
 ```
@@ -34,8 +39,7 @@ revenez sur le tableau de bord praticien.
 ## Architecture
 
 - **Next.js 16 (App Router) + React 19 + TypeScript** — même stack que le site ROP.
-- **Prisma + SQLite** en développement/pilote ; passage à PostgreSQL (hébergement UE/EEE)
-  en changeant `provider` et `DATABASE_URL` dans `prisma/schema.prisma`.
+- **Prisma + PostgreSQL** (compatible Vercel/Neon ; choisir un hébergement UE/EEE).
 - `lib/questionnaires.ts` — moteur de questionnaires : formulaires T0/J2/J21 définis en
   configuration (types de champs, logique conditionnelle, validation), versionnés.
 - `lib/alerts.ts` — moteur d'alertes (section 7 des specs) : signes d'alerte initiaux,
@@ -57,6 +61,27 @@ revenez sur le tableau de bord praticien.
 - Export réservé aux admins, agrégé par défaut, journalisé, cellules < 5 supprimées.
 - En-têtes de sécurité (HSTS, X-Frame-Options, nosniff) ; sessions httpOnly 12 h ;
   mots de passe bcrypt.
+
+## Déploiement sur Vercel
+
+1. Sur [vercel.com](https://vercel.com) : **Add New → Project** → importer le dépôt
+   GitHub `nboitout/SuiviPatient` (framework Next.js détecté automatiquement).
+2. Créer la base : onglet **Storage → Create Database → Neon (Postgres)**, région
+   **Frankfurt (eu-central-1)** ou Paris — la variable `DATABASE_URL` est ajoutée
+   automatiquement au projet.
+3. Ajouter la variable d'environnement `APP_BASE_URL` = l'URL publique du projet
+   (ex. `https://suivipatient.vercel.app`) — elle sert à générer les liens patients.
+4. Déployer, puis initialiser la base depuis votre machine :
+
+   ```bash
+   DATABASE_URL="<url de la base Neon>" npx prisma db push
+   DATABASE_URL="<url>" npm run create-admin -- admin@institut.fr "Institut ROP" "MotDePasseFort"
+   ```
+
+   (`npm run db:seed` charge les données de démonstration — à réserver à un
+   environnement de test, pas à la production.)
+5. Se connecter sur `/praticien/login` avec le compte admin et créer les comptes
+   praticiens depuis `/admin/praticiens`.
 
 ## Reste à faire avant le pilote (hors périmètre de ce dépôt)
 
