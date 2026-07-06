@@ -1,0 +1,262 @@
+// Modèle de données — webapp de suivi patient ROP (V1)
+// Conforme à la section 9 des spécifications fonctionnelles :
+// coordonnées de contact séparées des réponses, profil patient pseudonyme,
+// journal d'audit, consentements granulaires versionnés.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  // SQLite pour le pilote / développement.
+  // Passage à PostgreSQL (hébergement UE) : provider = "postgresql" + DATABASE_URL.
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// ---------- Utilisateurs (praticiens + institut) ----------
+
+enum Role {
+  PRACTITIONER
+  ADMIN
+}
+
+enum CertificationStatus {
+  PENDING
+  ACTIVE
+  SUSPENDED
+  REVOKED
+}
+
+model User {
+  id                  String              @id @default(cuid())
+  email               String              @unique
+  passwordHash        String
+  fullName            String
+  role                Role                @default(PRACTITIONER)
+  certificationStatus CertificationStatus @default(PENDING)
+  // Acceptation du protocole (PRA-12)
+  protocolAcceptedAt  DateTime?
+  protocolVersion     String?
+  createdAt           DateTime            @default(now())
+  updatedAt           DateTime            @updatedAt
+
+  episodes  Episode[]
+  sessions  AuthSession[]
+  auditLogs AuditLog[]
+  alerts    Alert[]       @relation("AlertReviewer")
+}
+
+model AuthSession {
+  id        String   @id @default(cuid())
+  tokenHash String   @unique
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  expiresAt DateTime
+}
+
+// ---------- Patient (pseudonyme) ----------
+
+// Coordonnées de contact : table séparée des réponses (PRI-03).
+// Reliée à l'épisode par ID interne uniquement, supprimable indépendamment.
+model PatientContact {
+  id             String    @id @default(cuid())
+  episodeId      String    @unique
+  episode        Episode   @relation(fields: [episodeId], references: [id], onDelete: Cascade)
+  email          String?
+  phone          String?
+  contactConsent Boolean   @default(false)
+  optedOutAt     DateTime?
+  createdAt      DateTime  @default(now())
+}
+
+// ---------- Épisode de suivi ----------
+
+enum EpisodeStatus {
+  ACTIVE
+  COMPLETED
+  REVOKED
+}
+
+model Episode {
+  id             String        @id @default(cuid())
+  // Jeton sécurisé à haute entropie du lien patient (SEC-05) — seul le hash est stocké
+  tokenHash      String        @unique
+  practitionerId String
+  practitioner   User          @relation(fields: [practitionerId], references: [id])
+  status         EpisodeStatus @default(ACTIVE)
+
+  sessionNumber  Int      @default(1)
+  sessionDate    DateTime
+  mainIndication String // catégorie d'indication principale
+  ropFocus       String? // focalisation ROP optionnelle
+  // Profil pseudonyme : tranche d'âge, sexe optionnel — jamais de nom (9.2)
+  ageBand        String?
+  sex            String?
+
+  linkExpiresAt DateTime
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  contact       PatientContact?
+  consents      ConsentRecord[]
+  formTasks     FormTask[]
+  responses     QuestionnaireResponse[]
+  alerts        Alert[]
+  reminderTasks ReminderTask[]
+}
+
+// ---------- Consentement ----------
+
+enum ConsentType {
+  OUTCOMES_MONITORING // traitement des réponses (obligatoire)
+  CONTACT_REMINDERS // rappels e-mail/SMS (optionnel)
+  AGGREGATED_RESEARCH // usage pseudonymisé/agrégé par l'institut (optionnel)
+}
+
+model ConsentRecord {
+  id          String      @id @default(cuid())
+  episodeId   String
+  episode     Episode     @relation(fields: [episodeId], references: [id], onDelete: Cascade)
+  type        ConsentType
+  version     String
+  granted     Boolean
+  grantedAt   DateTime    @default(now())
+  withdrawnAt DateTime?
+  // Métadonnées de preuve (PAT-03)
+  userAgent   String?
+
+  @@index([episodeId, type])
+}
+
+// ---------- Questionnaires ----------
+
+enum FormKind {
+  T0
+  SAME_DAY
+  D2
+  D7
+  D21
+}
+
+enum FormTaskStatus {
+  SCHEDULED
+  OPEN
+  COMPLETED
+  EXPIRED
+  CANCELLED
+}
+
+model FormTask {
+  id        String         @id @default(cuid())
+  episodeId String
+  episode   Episode        @relation(fields: [episodeId], references: [id], onDelete: Cascade)
+  kind      FormKind
+  dueAt     DateTime
+  openFrom  DateTime
+  status    FormTaskStatus @default(SCHEDULED)
+  createdAt DateTime       @default(now())
+
+  response QuestionnaireResponse?
+
+  @@unique([episodeId, kind])
+}
+
+model QuestionnaireResponse {
+  id                   String   @id @default(cuid())
+  episodeId            String
+  episode              Episode  @relation(fields: [episodeId], references: [id], onDelete: Cascade)
+  formTaskId           String   @unique
+  formTask             FormTask @relation(fields: [formTaskId], references: [id])
+  kind                 FormKind
+  questionnaireVersion String
+  // Réponses brutes en JSON { fieldId: valeur } — versionnées (6.1)
+  answers              String
+  submittedAt          DateTime @default(now())
+}
+
+// ---------- Alertes ----------
+
+enum AlertType {
+  BASELINE_RED_FLAG
+  STRONG_WORSENING
+  REACTION_OVER_72H
+  URGENT_CARE
+  HIGH_REACTION_INTENSITY
+  INCOMPLETE_D21
+}
+
+enum AlertSeverity {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+enum AlertStatus {
+  NEW
+  ACKNOWLEDGED
+  PATIENT_CONTACTED
+  REFERRAL_ADVISED
+  UNDER_MEDICAL_FOLLOWUP
+  RESOLVED
+  FALSE_POSITIVE
+}
+
+model Alert {
+  id         String        @id @default(cuid())
+  episodeId  String
+  episode    Episode       @relation(fields: [episodeId], references: [id], onDelete: Cascade)
+  type       AlertType
+  severity   AlertSeverity
+  status     AlertStatus   @default(NEW)
+  detail     String?
+  createdAt  DateTime      @default(now())
+  reviewedAt DateTime?
+  reviewerId String?
+  reviewer   User?         @relation("AlertReviewer", fields: [reviewerId], references: [id])
+
+  @@index([episodeId])
+  @@index([status])
+}
+
+// ---------- Rappels ----------
+
+enum ReminderStatus {
+  SCHEDULED
+  SENT
+  FAILED
+  CANCELLED
+  OPT_OUT
+}
+
+model ReminderTask {
+  id        String         @id @default(cuid())
+  episodeId String
+  episode   Episode        @relation(fields: [episodeId], references: [id], onDelete: Cascade)
+  formKind  FormKind
+  channel   String // email | sms | manual
+  dueAt     DateTime
+  status    ReminderStatus @default(SCHEDULED)
+  sentAt    DateTime?
+  createdAt DateTime       @default(now())
+
+  @@index([status, dueAt])
+}
+
+// ---------- Journal d'audit ----------
+
+model AuditLog {
+  id         String   @id @default(cuid())
+  userId     String?
+  user       User?    @relation(fields: [userId], references: [id])
+  action     String // LOGIN, VIEW_EPISODE, EXPORT, ALERT_ACTION, ...
+  objectType String?
+  objectId   String?
+  detail     String?
+  outcome    String   @default("OK")
+  createdAt  DateTime @default(now())
+
+  @@index([createdAt])
+  @@index([action])
+}
