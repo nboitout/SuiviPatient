@@ -19,6 +19,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
             <Link href="/admin">Réseau</Link>
             <Link href="/admin/praticiens">Praticiens</Link>
             <Link href="/admin/audit">Journal d&apos;audit</Link>
+            <Link href="/admin/compte">Mon compte</Link>
           </nav>
           <span className="topbar-spacer" />
           <span className="muted">{user.fullName}</span>

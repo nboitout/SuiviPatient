@@ -2,6 +2,7 @@ import { prisma } from "@/lib/db";
 import { requireAdmin } from "@/lib/auth";
 import CreatePractitionerForm from "@/components/CreatePractitionerForm";
 import PractitionerStatusSelect from "@/components/PractitionerStatusSelect";
+import ResetPractitionerPassword from "@/components/ResetPractitionerPassword";
 
 // Registre des praticiens (ADM-01) : invitation, activation, suspension.
 
@@ -34,6 +35,7 @@ export default async function PractitionersPage() {
                 <th>Protocole</th>
                 <th>Épisodes</th>
                 <th>Statut de certification</th>
+                <th>Mot de passe</th>
               </tr>
             </thead>
             <tbody>
@@ -53,6 +55,9 @@ export default async function PractitionersPage() {
                   <td>{p._count.episodes}</td>
                   <td>
                     <PractitionerStatusSelect userId={p.id} current={p.certificationStatus} />
+                  </td>
+                  <td>
+                    <ResetPractitionerPassword userId={p.id} />
                   </td>
                 </tr>
               ))}

@@ -43,6 +43,38 @@ export async function createPractitionerAction(
   return { ok: true, tempPassword };
 }
 
+export interface ResetPasswordState {
+  tempPassword?: string;
+  error?: string;
+}
+
+// Réinitialisation du mot de passe d'un praticien par l'admin :
+// nouveau mot de passe provisoire affiché une seule fois, sessions révoquées.
+export async function resetPractitionerPasswordAction(
+  userId: string,
+  // état précédent requis par useActionState via bind
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  _prev: ResetPasswordState
+): Promise<ResetPasswordState> {
+  const admin = await requireAdmin();
+  const user = await prisma.user.findUnique({ where: { id: userId } });
+  if (!user || user.role !== "PRACTITIONER") {
+    return { error: "Compte introuvable." };
+  }
+  const tempPassword = crypto.randomUUID().slice(0, 12);
+  await prisma.user.update({
+    where: { id: userId },
+    data: { passwordHash: await hashPassword(tempPassword) },
+  });
+  // Déconnexion forcée de toutes les sessions existantes du praticien
+  await prisma.authSession.deleteMany({ where: { userId } });
+  await logAudit(admin.id, "RESET_PRACTITIONER_PASSWORD", {
+    objectType: "User",
+    objectId: userId,
+  });
+  return { tempPassword };
+}
+
 export async function setPractitionerStatusAction(userId: string, status: string): Promise<void> {
   const admin = await requireAdmin();
   await prisma.user.update({

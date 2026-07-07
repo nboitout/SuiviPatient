@@ -25,6 +25,7 @@ export default async function PortalLayout({ children }: { children: React.React
             <Link href="/praticien">Tableau de bord</Link>
             <Link href="/praticien/nouveau">Créer un suivi</Link>
             <Link href="/praticien/alertes">Alertes</Link>
+            <Link href="/praticien/compte">Mon compte</Link>
           </nav>
           <span className="topbar-spacer" />
           <span className="muted">{user.fullName}</span>

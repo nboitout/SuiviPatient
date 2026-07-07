@@ -30,6 +30,47 @@ export async function logoutAction(): Promise<void> {
   redirect("/praticien/login");
 }
 
+export interface ChangePasswordState {
+  error?: string;
+}
+
+// Changement de mot de passe par l'utilisateur connecté (praticien ou admin).
+// Toutes les sessions sont révoquées : reconnexion requise avec le nouveau mot de passe.
+export async function changeOwnPasswordAction(
+  _prev: ChangePasswordState,
+  formData: FormData
+): Promise<ChangePasswordState> {
+  const user = await requirePractitioner();
+  const current = String(formData.get("current") ?? "");
+  const next = String(formData.get("next") ?? "");
+  const confirm = String(formData.get("confirm") ?? "");
+
+  const bcrypt = (await import("bcryptjs")).default;
+  const ok = await bcrypt.compare(current, user.passwordHash);
+  if (!ok) {
+    await logAudit(user.id, "PASSWORD_CHANGE", { outcome: "BAD_CURRENT_PASSWORD" });
+    return { error: "Mot de passe actuel incorrect." };
+  }
+  if (next.length < 10) {
+    return { error: "Le nouveau mot de passe doit comporter au moins 10 caractères." };
+  }
+  if (next !== confirm) {
+    return { error: "La confirmation ne correspond pas au nouveau mot de passe." };
+  }
+  if (next === current) {
+    return { error: "Le nouveau mot de passe doit être différent de l'actuel." };
+  }
+
+  await prisma.user.update({
+    where: { id: user.id },
+    data: { passwordHash: await bcrypt.hash(next, 12) },
+  });
+  await prisma.authSession.deleteMany({ where: { userId: user.id } });
+  await logAudit(user.id, "PASSWORD_CHANGE", { outcome: "OK" });
+  await logout();
+  redirect("/praticien/login?pw=changed");
+}
+
 export async function acceptProtocolAction(): Promise<void> {
   const user = await requirePractitioner();
   await prisma.user.update({
