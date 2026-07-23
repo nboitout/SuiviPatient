@@ -1,0 +1,312 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Observatoire PELVIS-ROP</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root{
+    --ground:#FBF9F3; --surface:#F5F1E8; --surface-2:#EFE9DB;
+    --ink:#211C15; --ink-2:#524B3E; --ink-3:#867C69;
+    --line:#DED6C4; --line-2:#CABFA7;
+    --sage:#556B4A; --sage-deep:#3C4E33; --sage-soft:#7C8E6E;
+    --gold:#A97F35; --gold-soft:#C8A970;
+    --brick:#9C4B3B;
+    --good:#556B4A; --warn:#A97F35; --crit:#9C4B3B;
+    --shadow:0 1px 2px rgba(33,28,21,.05),0 8px 28px -18px rgba(33,28,21,.30);
+    --serif:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,"Times New Roman",serif;
+    --sans:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+    --mono:ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;
+  }
+  @media (prefers-color-scheme:dark){
+    :root{
+      --ground:#16130E; --surface:#1E1A13; --surface-2:#262118;
+      --ink:#F0EADC; --ink-2:#C3BAA6; --ink-3:#8C826D;
+      --line:#332C20; --line-2:#40382a;
+      --sage:#93A784; --sage-deep:#A9BC9A; --sage-soft:#6F8262;
+      --gold:#C8A461; --gold-soft:#9c803f;
+      --brick:#CB7A69;
+      --good:#93A784; --warn:#C8A461; --crit:#CB7A69;
+      --shadow:0 1px 2px rgba(0,0,0,.4),0 12px 34px -20px rgba(0,0,0,.7);
+    }
+  }
+  :root[data-theme="light"]{
+    --ground:#FBF9F3; --surface:#F5F1E8; --surface-2:#EFE9DB;
+    --ink:#211C15; --ink-2:#524B3E; --ink-3:#867C69; --line:#DED6C4;
+    --sage:#556B4A; --sage-deep:#3C4E33; --sage-soft:#7C8E6E;
+    --gold:#A97F35; --brick:#9C4B3B;
+    --good:#556B4A; --warn:#A97F35; --crit:#9C4B3B;
+  }
+  :root[data-theme="dark"]{
+    --ground:#16130E; --surface:#1E1A13; --surface-2:#262118;
+    --ink:#F0EADC; --ink-2:#C3BAA6; --ink-3:#8C826D; --line:#332C20;
+    --sage:#93A784; --sage-deep:#A9BC9A; --sage-soft:#6F8262;
+    --gold:#C8A461; --brick:#CB7A69;
+    --good:#93A784; --warn:#C8A461; --crit:#CB7A69;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--ground);color:var(--ink);font-family:var(--sans);
+    line-height:1.6;-webkit-font-smoothing:antialiased;font-size:16px}
+  .wrap{max-width:960px;margin:0 auto;padding:0 24px}
+  a{color:var(--sage-deep);text-underline-offset:3px}
+
+  .mock{background:var(--gold);color:#1c1408;text-align:center;font-family:var(--sans);
+    font-size:12.5px;letter-spacing:.04em;padding:7px 16px;font-weight:600}
+  @media (prefers-color-scheme:dark){.mock{color:#16130E}}
+  :root[data-theme="dark"] .mock{color:#16130E}
+
+  header.mast{padding:52px 0 30px;border-bottom:1px solid var(--line)}
+  .eyebrow{font-family:var(--sans);font-size:12px;font-weight:600;letter-spacing:.18em;
+    text-transform:uppercase;color:var(--sage);margin:0 0 14px}
+  h1{font-family:var(--serif);font-weight:600;font-size:clamp(30px,5vw,46px);
+    line-height:1.08;letter-spacing:-.01em;margin:0;text-wrap:balance;max-width:16ch}
+  .lede{font-family:var(--serif);font-size:clamp(17px,2.4vw,20px);color:var(--ink-2);
+    margin:16px 0 0;max-width:60ch;font-style:italic}
+
+  .statusbar{display:flex;flex-wrap:wrap;gap:10px 22px;align-items:center;
+    margin-top:26px;font-family:var(--sans);font-size:13.5px;color:var(--ink-2)}
+  .pill{display:inline-flex;align-items:center;gap:8px;background:var(--surface);
+    border:1px solid var(--line);border-radius:999px;padding:6px 13px;font-weight:500}
+  .dot{width:8px;height:8px;border-radius:50%;background:var(--sage);flex:none;
+    box-shadow:0 0 0 3px color-mix(in srgb,var(--sage) 22%,transparent)}
+  .dot.lock{background:var(--gold);box-shadow:0 0 0 3px color-mix(in srgb,var(--gold) 22%,transparent)}
+
+  section{padding:36px 0;border-bottom:1px solid var(--line)}
+  .kicker{font-family:var(--sans);font-size:11.5px;font-weight:700;letter-spacing:.16em;
+    text-transform:uppercase;color:var(--ink-3);margin:0 0 6px}
+  h2{font-family:var(--serif);font-weight:600;font-size:clamp(21px,3vw,27px);margin:0 0 4px;
+    letter-spacing:-.01em;text-wrap:balance}
+  .sub{color:var(--ink-2);margin:2px 0 22px;max-width:64ch;font-size:15px}
+
+  .frame{background:var(--surface);border:1px solid var(--line);border-left:3px solid var(--sage);
+    border-radius:8px;padding:18px 20px;display:grid;gap:8px}
+  .frame p{margin:0;font-size:14.5px;color:var(--ink-2)}
+  .frame strong{color:var(--ink)}
+
+  .hero{display:grid;grid-template-columns:1.1fr 1fr;gap:34px;align-items:center}
+  @media(max-width:680px){.hero{grid-template-columns:1fr;gap:22px}}
+  .bignum{font-family:var(--serif);font-weight:600;font-size:clamp(58px,12vw,92px);
+    line-height:.9;letter-spacing:-.02em;color:var(--ink);font-variant-numeric:tabular-nums}
+  .bignum .ci{display:block;font-family:var(--sans);font-size:15px;font-weight:500;
+    color:var(--ink-3);letter-spacing:0;margin-top:12px}
+  .hero .desc{font-size:15px;color:var(--ink-2)}
+  .hero .desc b{color:var(--ink);font-weight:600}
+
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+  @media(max-width:680px){.grid2{grid-template-columns:1fr}}
+  .card{background:var(--surface);border:1px solid var(--line);border-radius:10px;
+    padding:20px;box-shadow:var(--shadow)}
+  .card h3{font-family:var(--sans);font-size:13px;font-weight:700;letter-spacing:.03em;
+    margin:0 0 3px;color:var(--ink)}
+  .card .note{font-size:12.5px;color:var(--ink-3);margin:0 0 16px}
+
+  figure{margin:0}
+  .legend{display:flex;gap:16px;flex-wrap:wrap;font-family:var(--sans);font-size:12.5px;
+    color:var(--ink-2);margin-top:12px}
+  .legend span{display:inline-flex;align-items:center;gap:7px}
+  .swatch{width:11px;height:11px;border-radius:3px;flex:none}
+
+  table{border-collapse:collapse;width:100%;font-size:14px;font-family:var(--sans)}
+  .tblwrap{overflow-x:auto}
+  th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line)}
+  th{font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3);font-weight:600}
+  td.num{text-align:right;font-variant-numeric:tabular-nums;font-family:var(--mono);color:var(--ink-2)}
+  .tag{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;
+    padding:3px 9px;border-radius:999px;font-family:var(--sans)}
+  .tag.ok{background:color-mix(in srgb,var(--good) 15%,transparent);color:var(--good)}
+  .tag.none{background:color-mix(in srgb,var(--ink-3) 15%,transparent);color:var(--ink-2)}
+
+  .neg{background:linear-gradient(180deg,color-mix(in srgb,var(--brick) 7%,var(--surface)),var(--surface));
+    border:1px solid color-mix(in srgb,var(--brick) 30%,var(--line));border-radius:10px;padding:22px 24px}
+  .neg h2{margin-bottom:8px}
+  .neg p{margin:0 0 10px;font-size:14.5px;color:var(--ink-2);max-width:66ch}
+  .neg ul{margin:6px 0 0;padding-left:20px;color:var(--ink-2);font-size:14.5px}
+  .neg li{margin:5px 0}
+
+  footer{padding:34px 0 60px;font-family:var(--sans);font-size:13px;color:var(--ink-3)}
+  .meta{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:16px 24px;margin-bottom:22px}
+  .meta div span{display:block;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3);margin-bottom:3px}
+  .meta div b{color:var(--ink-2);font-weight:600;font-family:var(--mono);font-size:13.5px}
+  .fineprint{border-top:1px solid var(--line);padding-top:18px;max-width:70ch;line-height:1.55}
+
+  .barrow{display:grid;grid-template-columns:130px 1fr;gap:12px;align-items:center;margin:11px 0}
+  .barrow .lab{font-size:13px;color:var(--ink-2);font-family:var(--sans)}
+  .track{background:var(--surface-2);border-radius:5px;height:30px;position:relative;overflow:hidden;border:1px solid var(--line)}
+  .fill{height:100%;border-radius:4px 5px 5px 4px;display:flex;align-items:center;justify-content:flex-end;
+    padding-right:9px;color:#fff;font-size:12.5px;font-weight:600;font-family:var(--mono);min-width:34px}
+  @media(prefers-color-scheme:dark){.fill{color:#16130E}}
+  :root[data-theme="dark"] .fill{color:#16130E}
+</style>
+</head>
+<body>
+
+<div class="mock">MAQUETTE DE CONCEPTION · données illustratives, non issues de patients réels · à valider avant tout usage</div>
+
+<header class="mast">
+  <div class="wrap">
+    <p class="eyebrow">Observatoire ROP · Registre PELVIS-ROP</p>
+    <h1>Ce que la réflexothérapie occipito-podale change sur la sphère pelvienne</h1>
+    <p class="lede">Un registre observationnel tenu par des praticiens certifiés, ouvert à la lecture des lecteurs du tome&nbsp;3.</p>
+    <div class="statusbar">
+      <span class="pill"><span class="dot lock"></span>Analyse verrouillée</span>
+      <span class="pill"><span class="dot"></span>N = 214 patients · cible N* = 200 atteinte</span>
+      <span>Protocole pré-enregistré v0.1 · dernière mise à jour 18 juin 2026</span>
+    </div>
+  </div>
+</header>
+
+<section>
+  <div class="wrap">
+    <div class="frame">
+      <p><strong>Comment lire cette page.</strong> Il s'agit d'un <strong>registre observationnel</strong> : il documente ce qui est observé en pratique, chez des patients suivis sans groupe tiré au sort.</p>
+      <p>Il met donc en évidence des <strong>associations</strong> et un <strong>signal clinique</strong> — non une preuve d'efficacité supérieure au placebo ou à l'évolution naturelle. Le plan d'analyse et la taille d'échantillon ont été fixés <strong>avant</strong> le recueil ; les résultats ci-dessous n'ont pas été ajustés après coup.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <p class="kicker">Critère principal · pré-enregistré</p>
+    <h2>Taux de répondeurs à J30</h2>
+    <p class="sub">Part des patients dont le score de symptômes pelviens s'améliore d'au moins le seuil cliniquement pertinent (MCID) entre l'inclusion et le 30<sup>e</sup> jour.</p>
+    <div class="hero">
+      <div>
+        <div class="bignum">58&#8202;%<span class="ci">IC 95&#8202;% : 51&#8202;% – 65&#8202;% · n = 214</span></div>
+      </div>
+      <div class="desc">
+        <p>Sur <b>214 patients</b> suivis pour un trouble fonctionnel pelvien (vessie, intestin bas, plancher pelvien), <b>124</b> franchissent le seuil de réponse à un mois.</p>
+        <p style="margin-top:10px">Les <b>90 non-répondeurs</b> sont comptés ici — cette page ne montre pas seulement les succès.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <p class="kicker">Résultat le plus discriminant</p>
+    <h2>Spécificité régionale</h2>
+    <p class="sub">Si la ROP ciblait réellement le pelvis — et n'agissait pas de façon diffuse — l'amélioration devrait se concentrer sur les symptômes pelviens et rester faible ailleurs. C'est la traduction directe du gradient de ciblage (niveau&nbsp;3 spécifique <em>vs</em> niveau&nbsp;1 diffus).</p>
+    <div class="card">
+      <h3>Variation moyenne du score à J30 (échelle normalisée 0–10, baisse = amélioration)</h3>
+      <p class="note">Zone traitée : territoires pelviens de niveau 3 · comparaison cible / hors-cible chez les mêmes patients</p>
+      <figure>
+        <div class="barrow">
+          <div class="lab">Pelvis <em>(cible)</em></div>
+          <div class="track"><div class="fill" style="width:88%;background:var(--sage)">&minus;4,4</div></div>
+        </div>
+        <div class="barrow">
+          <div class="lab">Digestif haut <em>(hors cible)</em></div>
+          <div class="track"><div class="fill" style="width:11%;background:var(--gold-soft);color:var(--ink)">&minus;0,5</div></div>
+        </div>
+        <div class="barrow">
+          <div class="lab">Locomoteur <em>(hors cible)</em></div>
+          <div class="track"><div class="fill" style="width:8%;background:var(--gold-soft);color:var(--ink)">&minus;0,4</div></div>
+        </div>
+        <div class="legend">
+          <span><span class="swatch" style="background:var(--sage)"></span>Région cible (pelvis)</span>
+          <span><span class="swatch" style="background:var(--gold-soft)"></span>Régions hors cible (témoins internes)</span>
+        </div>
+      </figure>
+    </div>
+    <p class="sub" style="margin-top:16px">L'amélioration est <strong>concentrée sur le pelvis</strong> et quasi nulle hors cible — un profil difficile à expliquer par un simple effet général d'attente.</p>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="grid2">
+      <div class="card">
+        <h3>Relation dose-réponse</h3>
+        <p class="note">Taux de répondeurs à J30 selon le nombre de séances reçues</p>
+        <figure>
+          <svg viewBox="0 0 320 190" width="100%" height="auto" role="img" aria-label="Le taux de répondeurs croît avec le nombre de séances : 22% pour 1 séance, 34% pour 2, 49% pour 3, 63% pour 4 et plus.">
+            <g font-family="var(--mono)" font-size="10" fill="var(--ink-3)">
+              <line x1="38" y1="14" x2="38" y2="158" stroke="var(--line)"/>
+              <line x1="38" y1="158" x2="312" y2="158" stroke="var(--line)"/>
+              <text x="30" y="20" text-anchor="end">70%</text>
+              <text x="30" y="90" text-anchor="end">35%</text>
+              <text x="30" y="161" text-anchor="end">0</text>
+            </g>
+            <polyline points="70,131 150,105 230,80 292,55" fill="none" stroke="var(--sage)" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+            <g fill="var(--sage-deep)">
+              <circle cx="70" cy="131" r="4.5"/><circle cx="150" cy="105" r="4.5"/>
+              <circle cx="230" cy="80" r="4.5"/><circle cx="292" cy="55" r="5.5" stroke="var(--surface)" stroke-width="2"/>
+            </g>
+            <g font-family="var(--sans)" font-size="10.5" fill="var(--ink-2)" font-weight="600" text-anchor="middle">
+              <text x="70" y="123">22%</text><text x="150" y="97">34%</text>
+              <text x="230" y="72">49%</text><text x="292" y="46">63%</text>
+            </g>
+            <g font-family="var(--sans)" font-size="10" fill="var(--ink-3)" text-anchor="middle">
+              <text x="70" y="174">1 séance</text><text x="150" y="174">2</text>
+              <text x="230" y="174">3</text><text x="292" y="174">4 +</text>
+            </g>
+          </svg>
+        </figure>
+      </div>
+      <div class="card">
+        <h3>Ampleur d'effet — vessie (ICIQ-UI SF)</h3>
+        <p class="note">Score moyen, inclusion → J30 · plus bas = moins de symptômes</p>
+        <figure>
+          <div class="barrow" style="grid-template-columns:96px 1fr">
+            <div class="lab">Inclusion</div>
+            <div class="track"><div class="fill" style="width:72%;background:var(--ink-3)">11,2</div></div>
+          </div>
+          <div class="barrow" style="grid-template-columns:96px 1fr">
+            <div class="lab">J30</div>
+            <div class="track"><div class="fill" style="width:44%;background:var(--sage)">6,8</div></div>
+          </div>
+          <p class="note" style="margin-top:14px;color:var(--ink-2)">Variation moyenne <b style="font-family:var(--mono);color:var(--ink)">&minus;4,4</b> (IC 95&#8202;% &minus;5,3 à &minus;3,5). Seuil cliniquement pertinent : &minus;2,5.</p>
+        </figure>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <p class="kicker">Tolérance</p>
+    <h2>Sécurité</h2>
+    <p class="sub">Tout signal remonté par les patients est enregistré, y compris bénin. Aucun événement grave à ce jour.</p>
+    <div class="tblwrap">
+      <table>
+        <thead><tr><th>Observation</th><th style="text-align:right">Patients</th><th>Gravité</th></tr></thead>
+        <tbody>
+          <tr><td>Réaction locale transitoire (&lt; 72 h)</td><td class="num">17</td><td><span class="tag ok">Bénin</span></td></tr>
+          <tr><td>Fatigue passagère post-séance</td><td class="num">9</td><td><span class="tag ok">Bénin</span></td></tr>
+          <tr><td>Réaction retardée (&gt; 72 h) signalée</td><td class="num">6</td><td><span class="tag ok">Bénin, résolu</span></td></tr>
+          <tr><td>Événement indésirable grave</td><td class="num">0</td><td><span class="tag none">Aucun</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="neg">
+      <p class="kicker" style="color:var(--brick)">Engagement d'honnêteté</p>
+      <h2>Ce qui aurait compté comme résultat négatif</h2>
+      <p>Défini <strong>avant</strong> le recueil, affiché quel que soit le résultat. Le registre aurait conclu à l'absence de signal si&nbsp;:</p>
+      <ul>
+        <li>le taux de répondeurs à J30 n'avait pas dépassé nettement ce qu'on attend de l'évolution spontanée&nbsp;;</li>
+        <li>l'amélioration s'était révélée <strong>aussi forte hors cible</strong> que sur le pelvis (effet diffus, non spécifique)&nbsp;;</li>
+        <li>aucune <strong>relation dose-réponse</strong> n'était apparue.</li>
+      </ul>
+      <p style="margin-top:12px">Cette page montrerait alors ce résultat nul — c'est la condition pour qu'un résultat positif soit crédible.</p>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="meta">
+      <div><span>Protocole</span><b>PELVIS-ROP v0.1</b></div>
+      <div><span>Effectif</span><b>N = 214</b></div>
+      <div><span>Cible pré-enregistrée</span><b>N* = 200</b></div>
+      <div><span>Mise à jour</span><b>2026-06-18</b></div>
+    </div>
+    <p class="fineprint">Résultats agrégés et anonymisés. Aucune donnée individuelle n'est publiée ; les effectifs inférieurs à 5 sont masqués. Données recueillies par des praticiens certifiés selon un protocole commun, avec consentement des patients à la recherche agrégée. Registre observationnel à visée de documentation et de génération d'hypothèses ; il ne constitue pas une preuve d'efficacité et ne remplace aucun avis médical. Le plan d'analyse et la taille d'échantillon ont été pré-enregistrés ; l'affirmation principale est verrouillée à l'atteinte de N*. <br><br><em>Maquette de conception — les chiffres présentés sont illustratifs et ne proviennent pas de patients réels.</em></p>
+  </div>
+</footer>
+</body>
+</html>
