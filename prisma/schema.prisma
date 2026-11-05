@@ -41,10 +41,47 @@ model User {
   createdAt           DateTime            @default(now())
   updatedAt           DateTime            @updatedAt
 
-  episodes  Episode[]
-  sessions  AuthSession[]
-  auditLogs AuditLog[]
-  alerts    Alert[]       @relation("AlertReviewer")
+  episodes             Episode[]
+  sessions             AuthSession[]
+  auditLogs            AuditLog[]
+  alerts               Alert[]                      @relation("AlertReviewer")
+  patients             Patient[]
+  profileVersions      PractitionerProfileVersion[]
+  certificationHistory CertificationEvent[]
+  treatmentSessions    TreatmentSession[]
+}
+
+// Append-only versions: later profile edits never rewrite session history.
+model PractitionerProfileVersion {
+  id                     String             @id @default(cuid())
+  practitionerId         String
+  practitioner           User               @relation(fields: [practitionerId], references: [id])
+  effectiveFrom          DateTime           @db.Date
+  professionalBackground String
+  practiceSetting        String
+  ropStartedYear         Int
+  monthlyCaseVolume      String?
+  otherModalities        String?
+  trainings              Json
+  recordedAt             DateTime           @default(now())
+  treatmentSessions      TreatmentSession[]
+
+  @@unique([id, practitionerId])
+  @@index([practitionerId, effectiveFrom, recordedAt])
+}
+
+model CertificationEvent {
+  id                String              @id @default(cuid())
+  practitionerId    String
+  practitioner      User                @relation(fields: [practitionerId], references: [id])
+  status            CertificationStatus
+  effectiveFrom     DateTime            @db.Date
+  recordedAt        DateTime            @default(now())
+  recordedById      String?
+  treatmentSessions TreatmentSession[]
+
+  @@unique([id, practitionerId])
+  @@index([practitionerId, effectiveFrom, recordedAt])
 }
 
 model AuthSession {
@@ -57,6 +94,23 @@ model AuthSession {
 }
 
 // ---------- Patient (pseudonyme) ----------
+
+// Identity/contact information stays outside the longitudinal research record.
+// A patient belongs to one practitioner; no cross-practice matching by email.
+model Patient {
+  id             String    @id @default(cuid())
+  code           String    @unique
+  practitionerId String
+  practitioner   User      @relation(fields: [practitionerId], references: [id])
+  ageBand        String?
+  sex            String?
+  legacyImported Boolean   @default(false)
+  createdAt      DateTime  @default(now())
+  episodes       Episode[]
+
+  @@unique([id, practitionerId])
+  @@index([practitionerId, createdAt])
+}
 
 // Coordonnées de contact : table séparée des réponses (PRI-03).
 // Reliée à l'épisode par ID interne uniquement, supprimable indépendamment.
@@ -86,25 +140,84 @@ model Episode {
   practitionerId String
   practitioner   User          @relation(fields: [practitionerId], references: [id])
   status         EpisodeStatus @default(ACTIVE)
+  patientId      String
+  patient        Patient       @relation(fields: [patientId, practitionerId], references: [id, practitionerId])
 
-  sessionNumber  Int      @default(1)
-  sessionDate    DateTime
-  mainIndication String // catégorie d'indication principale
-  ropFocus       String? // focalisation ROP optionnelle
+  // Anchor for this care episode; individual sessions have their own dates.
+  startedAt                 DateTime  @map("sessionDate")
+  mainIndication            String // catégorie d'indication principale
+  ropFocus                  String? // focalisation ROP optionnelle
+  presentingProblem         String?
+  symptomDuration           String?
+  baselineSeverity          Int?
+  baselineImpact            Int?
+  medicalAssessment         String?
+  concurrentCare            String?
+  patientExpectations       String?
+  contextConsentConfirmedAt DateTime?
   // Profil pseudonyme : tranche d'âge, sexe optionnel — jamais de nom (9.2)
-  ageBand        String?
-  sex            String?
+  ageBand                   String?
+  sex                       String?
 
   linkExpiresAt DateTime
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
-  contact       PatientContact?
-  consents      ConsentRecord[]
-  formTasks     FormTask[]
-  responses     QuestionnaireResponse[]
-  alerts        Alert[]
-  reminderTasks ReminderTask[]
+  contact           PatientContact?
+  consents          ConsentRecord[]
+  formTasks         FormTask[]
+  responses         QuestionnaireResponse[]
+  alerts            Alert[]
+  reminderTasks     ReminderTask[]
+  treatmentSessions TreatmentSession[]
+
+  @@unique([id, practitionerId])
+  @@index([patientId, startedAt])
+}
+
+model TreatmentSession {
+  id                           String                      @id @default(cuid())
+  episodeId                    String
+  practitionerId               String
+  episode                      Episode                     @relation(fields: [episodeId, practitionerId], references: [id, practitionerId], onDelete: Cascade)
+  practitioner                 User                        @relation(fields: [practitionerId], references: [id])
+  sessionIndex                 Int
+  performedAt                  DateTime                    @db.Date
+  protocolVersion              String?
+  atlasVersion                 String?
+  durationMinutes              Int?
+  deviations                   String?
+  immediateResponse            String?
+  concurrentCareChanges        String?
+  legacyImported               Boolean                     @default(false)
+  recordedAt                   DateTime                    @default(now())
+  practitionerProfileVersionId String?
+  practitionerProfileVersion   PractitionerProfileVersion? @relation(fields: [practitionerProfileVersionId, practitionerId], references: [id, practitionerId])
+  certificationEventId         String?
+  certificationEvent           CertificationEvent?         @relation(fields: [certificationEventId, practitionerId], references: [id, practitionerId])
+  // Snapshot as known when recorded, including only training completed by this date.
+  practitionerSnapshot         Json?
+  zones                        SessionZoneTreatment[]
+
+  @@unique([episodeId, sessionIndex])
+  @@index([practitionerId, performedAt])
+}
+
+model SessionZoneTreatment {
+  id              String           @id @default(cuid())
+  sessionId       String
+  session         TreatmentSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  sequence        Int
+  site            String
+  zoneLabel       String
+  side            String
+  technique       String
+  intensity       String
+  durationSeconds Int?
+  findingsBefore  String?
+  findingsAfter   String?
+
+  @@unique([sessionId, sequence])
 }
 
 // ---------- Consentement ----------

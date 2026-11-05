@@ -22,7 +22,7 @@ Prérequis : Node.js ≥ 20 et une base PostgreSQL (gratuite sur [neon.tech](htt
 ```bash
 npm install
 cp .env.example .env      # puis renseigner DATABASE_URL
-npx prisma db push        # crée les tables
+npm run db:migrate        # applique les migrations versionnées
 npm run db:seed           # comptes de démo + 8 épisodes d'exemple
 npm run dev
 ```
@@ -74,7 +74,7 @@ revenez sur le tableau de bord praticien.
 4. Déployer, puis initialiser la base depuis votre machine :
 
    ```bash
-   DATABASE_URL="<url de la base Neon>" npx prisma db push
+   DATABASE_URL="<url de la base Neon>" npm run db:migrate
    DATABASE_URL="<url>" npm run create-admin -- admin@institut.fr "Institut ROP" "MotDePasseFort"
    ```
 
@@ -91,3 +91,44 @@ revenez sur le tableau de bord praticien.
   politique de rétention.
 - MFA admin, politique de mot de passe renforcée, rate limiting.
 - Hébergement UE (PostgreSQL chiffré, sauvegardes chiffrées, test de restauration).
+
+
+## Registre longitudinal (patients, épisodes et séances)
+
+- `/praticien/patients` : retrouver un patient par son code pseudonyme stable.
+- `/praticien/patient/[id]` : consulter tous ses épisodes, séances et questionnaires.
+- `/praticien/nouveau` : créer un épisode pour un nouveau patient ou un patient existant, avec contexte initial et première séance structurée.
+- `/praticien/episode/[id]/seance` : ajouter une séance au même épisode (zones ordonnées, côté, geste, intensité, durée, observations et adaptations).
+- `/praticien/compte` : renseigner les versions du profil professionnel et les formations ; consulter l’historique de certification.
+- `/admin/praticiens` : consulter les profils et gérer la certification avec historique.
+
+Chaque séance conserve le profil applicable à sa date. Une modification ultérieure du profil ne modifie pas les séances enregistrées. Les coordonnées et les consentements restent rattachés à l’épisode.
+
+**Base existante :** lire [la procédure de migration](docs/registre-longitudinal.md) avant déploiement. Ne pas utiliser `db:push` pour cette mise à niveau : la migration SQL conserve les anciennes séances et leurs liens patients.
+
+### Démonstration locale sans Docker
+
+1. Dans un terminal : `npm run db:local` (laisser tourner).
+2. Configurer `.env` avec la connexion locale :
+
+   ```dotenv
+   DATABASE_URL="postgres://postgres:postgres@127.0.0.1:55431/template1?sslmode=disable&connection_limit=1&pgbouncer=true&statement_cache_size=0&connect_timeout=0&pool_timeout=0"
+   APP_BASE_URL="http://localhost:3000"
+   ```
+
+3. Dans un second terminal : `npm run db:migrate`, puis `npm run db:seed` et `npm run dev -- --hostname 127.0.0.1`.
+4. Utiliser les comptes de démonstration ci-dessus. Les données de démonstration comprennent six patients et huit épisodes.
+
+Cette configuration utilise un serveur PostgreSQL local basé sur PGlite et uniquement des données fictives. Les paramètres de connexion spécifiques à ce serveur évitent les conflits de requêtes préparées ; ne pas les recopier automatiquement vers un hébergement distant.
+
+### Vérification
+
+```powershell
+npm test
+$env:REGISTRY_TEST_DATABASE_URL = 'postgres://postgres:postgres@127.0.0.1:55431/template1?sslmode=disable&connection_limit=1&pgbouncer=true&statement_cache_size=0&connect_timeout=0&pool_timeout=0'
+npm run test:integration
+npm run lint
+npm run build
+```
+
+Les tests d’intégration exigent une connexion locale explicite, créent leur propre schéma temporaire et le suppriment en fin de test. Ils vérifient la migration de données V1, les liens longitudinaux, le cloisonnement, les transactions et la conservation des profils historiques.

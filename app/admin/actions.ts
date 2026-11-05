@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/db";
 import { requireAdmin, hashPassword } from "@/lib/auth";
 import { logAudit } from "@/lib/audit";
-import type { CertificationStatus } from "@prisma/client";
+import { CertificationStatus } from "@prisma/client";
 
 // Gestion des praticiens (ADM-01) : création, activation, suspension.
 
@@ -16,10 +16,12 @@ export interface CreatePractitionerState {
 
 export async function createPractitionerAction(
   _prev: CreatePractitionerState,
-  formData: FormData
+  formData: FormData,
 ): Promise<CreatePractitionerState> {
   const admin = await requireAdmin();
-  const email = String(formData.get("email") ?? "").toLowerCase().trim();
+  const email = String(formData.get("email") ?? "")
+    .toLowerCase()
+    .trim();
   const fullName = String(formData.get("fullName") ?? "").trim();
   if (!email.includes("@") || !fullName) {
     return { error: "Nom et e-mail valides requis." };
@@ -36,9 +38,19 @@ export async function createPractitionerAction(
       passwordHash: await hashPassword(tempPassword),
       role: "PRACTITIONER",
       certificationStatus: "ACTIVE",
+      certificationHistory: {
+        create: {
+          status: "ACTIVE",
+          effectiveFrom: new Date(),
+          recordedById: admin.id,
+        },
+      },
     },
   });
-  await logAudit(admin.id, "CREATE_PRACTITIONER", { objectType: "User", objectId: user.id });
+  await logAudit(admin.id, "CREATE_PRACTITIONER", {
+    objectType: "User",
+    objectId: user.id,
+  });
   revalidatePath("/admin/praticiens");
   return { ok: true, tempPassword };
 }
@@ -54,7 +66,7 @@ export async function resetPractitionerPasswordAction(
   userId: string,
   // état précédent requis par useActionState via bind
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  _prev: ResetPasswordState
+  _prev: ResetPasswordState,
 ): Promise<ResetPasswordState> {
   const admin = await requireAdmin();
   const user = await prisma.user.findUnique({ where: { id: userId } });
@@ -75,16 +87,42 @@ export async function resetPractitionerPasswordAction(
   return { tempPassword };
 }
 
-export async function setPractitionerStatusAction(userId: string, status: string): Promise<void> {
+export async function setPractitionerStatusAction(
+  userId: string,
+  status: string,
+): Promise<void> {
   const admin = await requireAdmin();
-  await prisma.user.update({
-    where: { id: userId, role: "PRACTITIONER" },
-    data: { certificationStatus: status as CertificationStatus },
-  });
-  await logAudit(admin.id, "SET_PRACTITIONER_STATUS", {
-    objectType: "User",
-    objectId: userId,
-    detail: status,
+  if (
+    !Object.values(CertificationStatus).includes(status as CertificationStatus)
+  )
+    throw new Error("INVALID_STATUS");
+  await prisma.$transaction(async (tx) => {
+    const practitioner = await tx.user.findUnique({
+      where: { id: userId, role: "PRACTITIONER" },
+    });
+    if (!practitioner) throw new Error("NOT_FOUND");
+    if (practitioner.certificationStatus === status) return;
+    await tx.user.update({
+      where: { id: userId },
+      data: { certificationStatus: status as CertificationStatus },
+    });
+    await tx.certificationEvent.create({
+      data: {
+        practitionerId: userId,
+        status: status as CertificationStatus,
+        effectiveFrom: new Date(),
+        recordedById: admin.id,
+      },
+    });
+    await tx.auditLog.create({
+      data: {
+        userId: admin.id,
+        action: "SET_PRACTITIONER_STATUS",
+        objectType: "User",
+        objectId: userId,
+        detail: status,
+      },
+    });
   });
   revalidatePath("/admin/praticiens");
 }

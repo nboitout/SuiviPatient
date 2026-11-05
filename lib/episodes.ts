@@ -1,56 +1,7 @@
 import "server-only";
 import { prisma } from "./db";
-import { generateToken, hashToken } from "./tokens";
-import type { Episode, FormTask } from "@prisma/client";
-
-const LINK_VALIDITY_DAYS = 45; // couvre T0 → D21 + marge
-
-export interface CreateEpisodeInput {
-  practitionerId: string;
-  sessionNumber: number;
-  sessionDate: Date;
-  mainIndication: string;
-  ropFocus?: string;
-  ageBand?: string;
-  sex?: string;
-  contactEmail?: string;
-  contactPhone?: string;
-}
-
-// Crée un épisode + tâche T0 ouverte immédiatement.
-// Retourne le jeton en clair (affiché une seule fois au praticien).
-export async function createEpisode(input: CreateEpisodeInput): Promise<{ episode: Episode; token: string }> {
-  const token = generateToken();
-  const now = new Date();
-  const episode = await prisma.episode.create({
-    data: {
-      tokenHash: hashToken(token),
-      practitionerId: input.practitionerId,
-      sessionNumber: input.sessionNumber,
-      sessionDate: input.sessionDate,
-      mainIndication: input.mainIndication,
-      ropFocus: input.ropFocus || null,
-      ageBand: input.ageBand || null,
-      sex: input.sex || null,
-      linkExpiresAt: new Date(now.getTime() + LINK_VALIDITY_DAYS * 86400 * 1000),
-      formTasks: {
-        create: [{ kind: "T0", dueAt: now, openFrom: now, status: "OPEN" }],
-      },
-      ...(input.contactEmail || input.contactPhone
-        ? {
-            contact: {
-              create: {
-                email: input.contactEmail || null,
-                phone: input.contactPhone || null,
-                contactConsent: false, // le consentement est donné par le patient lui-même
-              },
-            },
-          }
-        : {}),
-    },
-  });
-  return { episode, token };
-}
+import { hashToken } from "./tokens";
+import type { FormTask } from "@prisma/client";
 
 export async function findEpisodeByToken(token: string) {
   const episode = await prisma.episode.findUnique({

@@ -10,14 +10,19 @@ import { ALERT_TYPE_LABELS, SEVERITY_LABELS } from "@/lib/alerts";
 export default async function PractitionerDashboard() {
   const user = await requirePractitioner();
 
-  const [episodes, openAlerts] = await Promise.all([
+  const [episodes, openAlerts, patientCount, sessionCount] = await Promise.all([
     prisma.episode.findMany({
       where: { practitionerId: user.id },
       orderBy: { createdAt: "desc" },
       include: {
+        patient: { select: { id: true, code: true } },
+        _count: { select: { treatmentSessions: true } },
         formTasks: true,
         responses: { select: { kind: true, submittedAt: true } },
-        alerts: { where: { status: { in: ["NEW", "ACKNOWLEDGED"] } }, select: { id: true } },
+        alerts: {
+          where: { status: { in: ["NEW", "ACKNOWLEDGED"] } },
+          select: { id: true },
+        },
       },
     }),
     prisma.alert.findMany({
@@ -26,16 +31,30 @@ export default async function PractitionerDashboard() {
       take: 5,
       include: { episode: { select: { id: true, mainIndication: true } } },
     }),
+    prisma.patient.count({
+      where: { practitionerId: user.id, episodes: { some: {} } },
+    }),
+    prisma.treatmentSession.count({ where: { practitionerId: user.id } }),
   ]);
 
   const active = episodes.filter((e) => e.status === "ACTIVE");
-  const awaitingD21 = active.filter((e) => !e.responses.some((r) => r.kind === "D21"));
+  const awaitingD21 = active.filter(
+    (e) => !e.responses.some((r) => r.kind === "D21"),
+  );
 
   return (
     <>
       <h1>Tableau de bord</h1>
 
       <div className="stat-row">
+        <div className="stat-tile">
+          <div className="stat-value">{patientCount}</div>
+          <div className="stat-label">Patients distincts</div>
+        </div>
+        <div className="stat-tile">
+          <div className="stat-value">{sessionCount}</div>
+          <div className="stat-label">Séances documentées</div>
+        </div>
         <div className="stat-tile">
           <div className="stat-value">{active.length}</div>
           <div className="stat-label">Suivis actifs</div>
@@ -73,7 +92,9 @@ export default async function PractitionerDashboard() {
                     <td>{a.createdAt.toLocaleDateString("fr-FR")}</td>
                     <td>{ALERT_TYPE_LABELS[a.type]}</td>
                     <td>
-                      <span className={`badge badge-${a.severity.toLowerCase()}`}>
+                      <span
+                        className={`badge badge-${a.severity.toLowerCase()}`}
+                      >
                         {SEVERITY_LABELS[a.severity]}
                       </span>
                     </td>
@@ -98,8 +119,10 @@ export default async function PractitionerDashboard() {
         {episodes.length === 0 ? (
           <p className="muted">
             Aucun suivi pour le moment.{" "}
-            <Link href="/praticien/nouveau">Créez votre premier suivi patient</Link> pour générer
-            un lien / QR code à remettre au patient.
+            <Link href="/praticien/nouveau">
+              Créez votre premier suivi patient
+            </Link>{" "}
+            pour générer un lien / QR code à remettre au patient.
           </p>
         ) : (
           <div className="table-wrap">
@@ -108,7 +131,7 @@ export default async function PractitionerDashboard() {
                 <tr>
                   <th>Créé le</th>
                   <th>Indication</th>
-                  <th>Séance</th>
+                  <th>Patient / séances</th>
                   <th>Réponses</th>
                   <th>Prochaine étape</th>
                   <th>Alertes</th>
@@ -120,13 +143,34 @@ export default async function PractitionerDashboard() {
                   const done = e.responses.map((r) => r.kind as string);
                   const order = ["T0", "D2", "D21"];
                   const nextTask = e.formTasks
-                    .filter((t) => t.status !== "COMPLETED" && t.status !== "CANCELLED" && !done.includes(t.kind))
-                    .sort((a, b) => order.indexOf(a.kind) - order.indexOf(b.kind))[0];
+                    .filter(
+                      (t) =>
+                        t.status !== "COMPLETED" &&
+                        t.status !== "CANCELLED" &&
+                        !done.includes(t.kind),
+                    )
+                    .sort(
+                      (a, b) => order.indexOf(a.kind) - order.indexOf(b.kind),
+                    )[0];
                   return (
                     <tr key={e.id}>
                       <td>{e.createdAt.toLocaleDateString("fr-FR")}</td>
-                      <td>{INDICATION_LABELS[e.mainIndication] ?? e.mainIndication}</td>
-                      <td>n°{e.sessionNumber}</td>
+                      <td>
+                        {INDICATION_LABELS[e.mainIndication] ??
+                          e.mainIndication}
+                      </td>
+                      <td>
+                        <Link
+                          className="patient-code"
+                          href={`/praticien/patient/${e.patientId}`}
+                        >
+                          {e.patient.code}
+                        </Link>
+                        <br />
+                        <span className="muted">
+                          {e._count.treatmentSessions} séance(s)
+                        </span>
+                      </td>
                       <td>
                         {order.map((k) => (
                           <span
@@ -147,7 +191,9 @@ export default async function PractitionerDashboard() {
                       </td>
                       <td>
                         {e.alerts.length > 0 ? (
-                          <span className="badge badge-high">{e.alerts.length}</span>
+                          <span className="badge badge-high">
+                            {e.alerts.length}
+                          </span>
                         ) : (
                           <span className="muted">—</span>
                         )}

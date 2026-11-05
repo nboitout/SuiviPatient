@@ -1,25 +1,42 @@
 import { notFound } from "next/navigation";
+import Link from "next/link";
 import { prisma } from "@/lib/db";
 import { requirePractitioner } from "@/lib/auth";
 import { logAudit } from "@/lib/audit";
 import { INDICATION_LABELS, FORM_KIND_LABELS } from "@/lib/episodes";
 import { FORMS } from "@/lib/questionnaires";
-import { ALERT_TYPE_LABELS, SEVERITY_LABELS, ALERT_STATUS_LABELS } from "@/lib/alerts";
+import {
+  ALERT_TYPE_LABELS,
+  SEVERITY_LABELS,
+  ALERT_STATUS_LABELS,
+} from "@/lib/alerts";
 import EvolutionChart from "@/components/EvolutionChart";
 import AlertActions from "@/components/AlertActions";
 import RegenerateLink from "@/components/RegenerateLink";
+import TreatmentSessionHistory from "@/components/TreatmentSessionHistory";
+import LinkEpisodePatientForm from "@/components/LinkEpisodePatientForm";
+import { DURATIONS, MEDICAL_ASSESSMENTS } from "@/lib/registry";
 
 // Fiche épisode (PRA-08, PRA-10) : chronologie, courbes d'évolution,
 // réponses détaillées, alertes. Accès strictement limité au praticien
 // propriétaire (PRA-07 / PRI-05) — tout accès est journalisé.
 
-export default async function EpisodePage({ params }: { params: Promise<{ id: string }> }) {
+export default async function EpisodePage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
   const { id } = await params;
   const user = await requirePractitioner();
 
   const episode = await prisma.episode.findUnique({
     where: { id },
     include: {
+      patient: { select: { id: true, code: true } },
+      treatmentSessions: {
+        orderBy: [{ performedAt: "asc" }, { sessionIndex: "asc" }],
+        include: { zones: { orderBy: { sequence: "asc" } } },
+      },
       formTasks: { orderBy: { dueAt: "asc" } },
       responses: { orderBy: { submittedAt: "asc" } },
       alerts: { orderBy: { createdAt: "desc" } },
@@ -30,12 +47,27 @@ export default async function EpisodePage({ params }: { params: Promise<{ id: st
 
   if (!episode || episode.practitionerId !== user.id) {
     if (episode) {
-      await logAudit(user.id, "VIEW_EPISODE", { objectId: id, outcome: "DENIED" });
+      await logAudit(user.id, "VIEW_EPISODE", {
+        objectId: id,
+        outcome: "DENIED",
+      });
     }
     notFound();
   }
 
-  await logAudit(user.id, "VIEW_EPISODE", { objectType: "Episode", objectId: id });
+  await logAudit(user.id, "VIEW_EPISODE", {
+    objectType: "Episode",
+    objectId: id,
+  });
+  const otherPatients = await prisma.patient.findMany({
+    where: {
+      practitionerId: user.id,
+      id: { not: episode.patientId },
+      episodes: { some: {} },
+    },
+    select: { id: true, code: true },
+    orderBy: { createdAt: "desc" },
+  });
 
   const responses = episode.responses.map((r) => ({
     kind: r.kind,
@@ -55,10 +87,18 @@ export default async function EpisodePage({ params }: { params: Promise<{ id: st
   const chartData = responses
     .filter((r) => r.kind === "T0" || r.kind === "D21")
     .map((r) => {
-      const point: Record<string, number | string | null> = { name: r.kind === "T0" ? "T0" : "J21" };
+      const point: Record<string, number | string | null> = {
+        name: r.kind === "T0" ? "T0" : "J21",
+      };
       for (const s of scaleKeys) {
         const v = Number(r.answers[s.key]);
-        point[s.label] = Number.isNaN(v) || r.answers[s.key] === undefined || r.answers[s.key] === null || r.answers[s.key] === "" ? null : v;
+        point[s.label] =
+          Number.isNaN(v) ||
+          r.answers[s.key] === undefined ||
+          r.answers[s.key] === null ||
+          r.answers[s.key] === ""
+            ? null
+            : v;
       }
       return point;
     });
@@ -79,7 +119,9 @@ export default async function EpisodePage({ params }: { params: Promise<{ id: st
     if (value === null || value === undefined || value === "") return "—";
     if (Array.isArray(value)) {
       return value
-        .map((v) => field?.options?.find((o) => o.value === v)?.label ?? String(v))
+        .map(
+          (v) => field?.options?.find((o) => o.value === v)?.label ?? String(v),
+        )
         .join(", ");
     }
     if (typeof value === "number") return `${value}/10`;
@@ -87,7 +129,12 @@ export default async function EpisodePage({ params }: { params: Promise<{ id: st
     return (
       field?.options?.find((o) => o.value === s)?.label ??
       CHANGE_LABELS[s] ??
-      { oui: "Oui", non: "Non", na: "Non applicable", en_cours: "Toujours en cours" }[s] ??
+      {
+        oui: "Oui",
+        non: "Non",
+        na: "Non applicable",
+        en_cours: "Toujours en cours",
+      }[s] ??
       s
     );
   }
@@ -95,17 +142,84 @@ export default async function EpisodePage({ params }: { params: Promise<{ id: st
   return (
     <>
       <h1>
-        Épisode — {INDICATION_LABELS[episode.mainIndication] ?? episode.mainIndication}, séance n°
-        {episode.sessionNumber}
+        Épisode —{" "}
+        {INDICATION_LABELS[episode.mainIndication] ?? episode.mainIndication}
       </h1>
       <p className="muted">
-        Séance du {episode.sessionDate.toLocaleDateString("fr-FR")}
+        Début du suivi :{" "}
+        {episode.startedAt.toLocaleDateString("fr-FR", { timeZone: "UTC" })}
         {episode.ropFocus ? ` · Focalisation : ${episode.ropFocus}` : ""}
         {episode.ageBand ? ` · ${episode.ageBand} ans` : ""}
         {episode.contact?.optedOutAt ? " · Rappels arrêtés par le patient" : ""}
         {" · Statut : "}
-        {episode.status === "ACTIVE" ? "actif" : episode.status === "COMPLETED" ? "terminé" : "révoqué"}
+        {episode.status === "ACTIVE"
+          ? "actif"
+          : episode.status === "COMPLETED"
+            ? "terminé"
+            : "révoqué"}
       </p>
+      <p className="patient-code">
+        <Link href={`/praticien/patient/${episode.patientId}`}>
+          Patient {episode.patient.code} — voir tout l’historique
+        </Link>
+      </p>
+      <div className="card">
+        <h2>Contexte initial consigné par le praticien</h2>
+        <p className="muted">
+          Ces observations sont distinctes des réponses saisies directement par
+          le patient dans les questionnaires ci-dessous.
+        </p>
+        <dl className="record-meta">
+          <div>
+            <dt>Problème suivi</dt>
+            <dd>{episode.presentingProblem ?? "Non documenté"}</dd>
+          </div>
+          <div>
+            <dt>Ancienneté</dt>
+            <dd>
+              {DURATIONS[episode.symptomDuration as keyof typeof DURATIONS] ??
+                "Non documentée"}
+            </dd>
+          </div>
+          <div>
+            <dt>Sévérité / gêne initiales</dt>
+            <dd>
+              {episode.baselineSeverity == null
+                ? "—"
+                : `${episode.baselineSeverity}/10`}{" "}
+              /{" "}
+              {episode.baselineImpact == null
+                ? "—"
+                : `${episode.baselineImpact}/10`}
+            </dd>
+          </div>
+          <div>
+            <dt>Évaluation médicale rapportée</dt>
+            <dd>
+              {MEDICAL_ASSESSMENTS[
+                episode.medicalAssessment as keyof typeof MEDICAL_ASSESSMENTS
+              ] ?? "Non documentée"}
+            </dd>
+          </div>
+          <div>
+            <dt>Traitements concomitants</dt>
+            <dd>{episode.concurrentCare ?? "Non renseignés"}</dd>
+          </div>
+          <div>
+            <dt>Attentes du patient</dt>
+            <dd>{episode.patientExpectations ?? "Non renseignées"}</dd>
+          </div>
+        </dl>
+      </div>
+      <div className="action-row">
+        <h2>Séances de cet épisode ({episode.treatmentSessions.length})</h2>
+        {episode.status !== "REVOKED" ? (
+          <Link className="btn" href={`/praticien/episode/${id}/seance`}>
+            Ajouter une séance
+          </Link>
+        ) : null}
+      </div>
+      <TreatmentSessionHistory sessions={episode.treatmentSessions} />
 
       <div className="card">
         <h2>Chronologie du suivi</h2>
@@ -144,10 +258,13 @@ export default async function EpisodePage({ params }: { params: Promise<{ id: st
         <div className="card">
           <h2>Évolution des échelles (0-10)</h2>
           <p className="muted">
-            Sommeil, énergie et confort digestif : plus haut = mieux. Symptôme, gêne et stress :
-            plus bas = mieux.
+            Sommeil, énergie et confort digestif : plus haut = mieux. Symptôme,
+            gêne et stress : plus bas = mieux.
           </p>
-          <EvolutionChart data={chartData} series={scaleKeys.map((s) => s.label)} />
+          <EvolutionChart
+            data={chartData}
+            series={scaleKeys.map((s) => s.label)}
+          />
         </div>
       )}
 
@@ -171,7 +288,9 @@ export default async function EpisodePage({ params }: { params: Promise<{ id: st
                     <td>{a.createdAt.toLocaleDateString("fr-FR")}</td>
                     <td>{ALERT_TYPE_LABELS[a.type]}</td>
                     <td>
-                      <span className={`badge badge-${a.severity.toLowerCase()}`}>
+                      <span
+                        className={`badge badge-${a.severity.toLowerCase()}`}
+                      >
                         {SEVERITY_LABELS[a.severity]}
                       </span>
                     </td>
@@ -180,7 +299,9 @@ export default async function EpisodePage({ params }: { params: Promise<{ id: st
                       {["NEW", "ACKNOWLEDGED"].includes(a.status) ? (
                         <AlertActions alertId={a.id} current={a.status} />
                       ) : (
-                        <span className="badge badge-neutral">{ALERT_STATUS_LABELS[a.status]}</span>
+                        <span className="badge badge-neutral">
+                          {ALERT_STATUS_LABELS[a.status]}
+                        </span>
                       )}
                     </td>
                   </tr>
@@ -197,7 +318,8 @@ export default async function EpisodePage({ params }: { params: Promise<{ id: st
         return (
           <div className="card" key={r.kind}>
             <h2>
-              {FORM_KIND_LABELS[r.kind]} — répondu le {r.submittedAt.toLocaleDateString("fr-FR")}
+              {FORM_KIND_LABELS[r.kind]} — répondu le{" "}
+              {r.submittedAt.toLocaleDateString("fr-FR")}
             </h2>
             <div className="table-wrap">
               <table>
@@ -208,7 +330,9 @@ export default async function EpisodePage({ params }: { params: Promise<{ id: st
                       <tr key={f.id}>
                         <td style={{ width: "55%" }}>{f.label}</td>
                         <td>
-                          <strong>{formatAnswer(r.kind, f.id, r.answers[f.id])}</strong>
+                          <strong>
+                            {formatAnswer(r.kind, f.id, r.answers[f.id])}
+                          </strong>
                         </td>
                       </tr>
                     ))}
@@ -224,6 +348,7 @@ export default async function EpisodePage({ params }: { params: Promise<{ id: st
           <p className="muted">Aucune réponse patient pour le moment.</p>
         </div>
       )}
+      <LinkEpisodePatientForm episodeId={id} patients={otherPatients} />
     </>
   );
 }

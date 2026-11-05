@@ -44,12 +44,49 @@ async function main() {
     },
   });
 
+  const profile =
+    (await prisma.practitionerProfileVersion.findFirst({
+      where: { practitionerId: practitioner.id },
+    })) ??
+    (await prisma.practitionerProfileVersion.create({
+      data: {
+        practitionerId: practitioner.id,
+        effectiveFrom: new Date("2020-01-01"),
+        professionalBackground: "Kinésithérapeute — démonstration",
+        practiceSetting: "cabinet",
+        ropStartedYear: 2018,
+        monthlyCaseVolume: "de_10_30",
+        trainings: [
+          {
+            module: "Formation ROP — exemple",
+            completedOn: "2018-06-01",
+            provider: "Institut ROP",
+          },
+        ],
+      },
+    }));
+  const certification =
+    (await prisma.certificationEvent.findFirst({
+      where: { practitionerId: practitioner.id },
+    })) ??
+    (await prisma.certificationEvent.create({
+      data: {
+        practitionerId: practitioner.id,
+        status: "ACTIVE",
+        effectiveFrom: new Date("2020-01-01"),
+        recordedById: admin.id,
+      },
+    }));
+  const demoPatients: string[] = [];
+
   console.log("Comptes de démo :");
   console.log("  Admin      : admin@rop-institut.fr / demo1234");
   console.log("  Praticien  : praticien@exemple.fr / demo1234");
 
   if ((await prisma.episode.count()) > 0) {
-    console.log("Des épisodes existent déjà — pas de données de démo supplémentaires.");
+    console.log(
+      "Des épisodes existent déjà — pas de données de démo supplémentaires.",
+    );
     return;
   }
 
@@ -77,12 +114,64 @@ async function main() {
   for (let i = 0; i < indications.length; i++) {
     const baseDate = new Date(Date.now() - (30 - i) * DAY);
     const token = randomBytes(24).toString("base64url");
+    const patient =
+      i < 6
+        ? await prisma.patient.create({
+            data: {
+              practitionerId: practitioner.id,
+              code: `ROP-DEMO-${String(i + 1).padStart(3, "0")}`,
+              ageBand: ["31-45", "46-60", "61-75"][i % 3],
+            },
+          })
+        : null;
+    if (patient) demoPatients.push(patient.id);
     const episode = await prisma.episode.create({
       data: {
         tokenHash: hashToken(token),
         practitionerId: practitioner.id,
-        sessionNumber: 1,
-        sessionDate: baseDate,
+        patientId: patient?.id ?? demoPatients[i - 6],
+        startedAt: baseDate,
+        presentingProblem: "Exemple fictif de problème suivi",
+        symptomDuration: "3_12m",
+        baselineSeverity: 6,
+        baselineImpact: 5,
+        medicalAssessment: "suivi",
+        concurrentCare: "Prise en charge habituelle inchangée (démonstration)",
+        patientExpectations:
+          "Retrouver du confort dans les activités quotidiennes",
+        contextConsentConfirmedAt: baseDate,
+        treatmentSessions: {
+          create: {
+            sessionIndex: 1,
+            performedAt: baseDate,
+            protocolVersion: "protocole-v1.0",
+            atlasVersion: "Cartographie de démonstration",
+            durationMinutes: 30,
+            practitionerProfileVersionId: profile.id,
+            certificationEventId: certification.id,
+            practitionerSnapshot: {
+              profileVersionId: profile.id,
+              professionalBackground: profile.professionalBackground,
+              practiceSetting: profile.practiceSetting,
+              ropStartedYear: profile.ropStartedYear,
+              trainings: profile.trainings,
+              certificationStatus: "ACTIVE",
+            },
+            zones: {
+              create: [
+                {
+                  sequence: 1,
+                  site: "podal",
+                  zoneLabel: "Zone descriptive de démonstration",
+                  side: "gauche",
+                  technique: "Pression progressive",
+                  intensity: "legere",
+                  durationSeconds: 30,
+                },
+              ],
+            },
+          },
+        },
         mainIndication: indications[i],
         ageBand: ["31-45", "46-60", "61-75"][i % 3],
         linkExpiresAt: new Date(Date.now() + 45 * DAY),
@@ -92,14 +181,30 @@ async function main() {
 
     await prisma.consentRecord.createMany({
       data: [
-        { episodeId: episode.id, type: "OUTCOMES_MONITORING", version: "v1.0", granted: true },
-        { episodeId: episode.id, type: "AGGREGATED_RESEARCH", version: "v1.0", granted: i % 2 === 0 },
+        {
+          episodeId: episode.id,
+          type: "OUTCOMES_MONITORING",
+          version: "v1.0",
+          granted: true,
+        },
+        {
+          episodeId: episode.id,
+          type: "AGGREGATED_RESEARCH",
+          version: "v1.0",
+          granted: i % 2 === 0,
+        },
       ],
     });
 
     const t0Symptom = 6 + (i % 3);
     const t0Task = await prisma.formTask.create({
-      data: { episodeId: episode.id, kind: "T0", dueAt: baseDate, openFrom: baseDate, status: "COMPLETED" },
+      data: {
+        episodeId: episode.id,
+        kind: "T0",
+        dueAt: baseDate,
+        openFrom: baseDate,
+        status: "COMPLETED",
+      },
     });
     await prisma.questionnaireResponse.create({
       data: {
@@ -188,7 +293,9 @@ async function main() {
       },
     });
     if (i < 6) {
-      const improvement = ["beaucoup_mieux", "mieux"].includes(changes[i]) ? 4 : 1;
+      const improvement = ["beaucoup_mieux", "mieux"].includes(changes[i])
+        ? 4
+        : 1;
       await prisma.questionnaireResponse.create({
         data: {
           episodeId: episode.id,
@@ -212,10 +319,16 @@ async function main() {
   }
 
   await prisma.auditLog.create({
-    data: { userId: admin.id, action: "SEED", detail: "Données de démonstration générées" },
+    data: {
+      userId: admin.id,
+      action: "SEED",
+      detail: "Données de démonstration générées",
+    },
   });
 
-  console.log(`8 épisodes de démonstration créés pour ${practitioner.fullName}.`);
+  console.log(
+    `6 patients et 8 épisodes de démonstration créés pour ${practitioner.fullName}.`,
+  );
 }
 
 main()

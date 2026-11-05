@@ -6,7 +6,8 @@ import QRCode from "qrcode";
 import { prisma } from "@/lib/db";
 import { login, logout, requirePractitioner } from "@/lib/auth";
 import { logAudit } from "@/lib/audit";
-import { createEpisode } from "@/lib/episodes";
+import { createCareEpisode } from "@/lib/registry-records";
+import { parseEpisode, RegistryValidationError } from "@/lib/registry";
 import { generateToken, hashToken } from "@/lib/tokens";
 import type { AlertStatus } from "@prisma/client";
 
@@ -16,7 +17,10 @@ export interface LoginState {
   error?: string;
 }
 
-export async function loginAction(_prev: LoginState, formData: FormData): Promise<LoginState> {
+export async function loginAction(
+  _prev: LoginState,
+  formData: FormData,
+): Promise<LoginState> {
   const email = String(formData.get("email") ?? "");
   const password = String(formData.get("password") ?? "");
   const user = await login(email, password);
@@ -38,7 +42,7 @@ export interface ChangePasswordState {
 // Toutes les sessions sont révoquées : reconnexion requise avec le nouveau mot de passe.
 export async function changeOwnPasswordAction(
   _prev: ChangePasswordState,
-  formData: FormData
+  formData: FormData,
 ): Promise<ChangePasswordState> {
   const user = await requirePractitioner();
   const current = String(formData.get("current") ?? "");
@@ -48,17 +52,25 @@ export async function changeOwnPasswordAction(
   const bcrypt = (await import("bcryptjs")).default;
   const ok = await bcrypt.compare(current, user.passwordHash);
   if (!ok) {
-    await logAudit(user.id, "PASSWORD_CHANGE", { outcome: "BAD_CURRENT_PASSWORD" });
+    await logAudit(user.id, "PASSWORD_CHANGE", {
+      outcome: "BAD_CURRENT_PASSWORD",
+    });
     return { error: "Mot de passe actuel incorrect." };
   }
   if (next.length < 10) {
-    return { error: "Le nouveau mot de passe doit comporter au moins 10 caractères." };
+    return {
+      error: "Le nouveau mot de passe doit comporter au moins 10 caractères.",
+    };
   }
   if (next !== confirm) {
-    return { error: "La confirmation ne correspond pas au nouveau mot de passe." };
+    return {
+      error: "La confirmation ne correspond pas au nouveau mot de passe.",
+    };
   }
   if (next === current) {
-    return { error: "Le nouveau mot de passe doit être différent de l'actuel." };
+    return {
+      error: "Le nouveau mot de passe doit être différent de l'actuel.",
+    };
   }
 
   await prisma.user.update({
@@ -90,35 +102,31 @@ export interface CreateEpisodeState {
 
 export async function createEpisodeAction(
   _prev: CreateEpisodeState,
-  formData: FormData
+  formData: FormData,
 ): Promise<CreateEpisodeState> {
   const user = await requirePractitioner();
   if (user.certificationStatus !== "ACTIVE") {
-    return { error: "Votre compte n'est pas actif : vous ne pouvez pas créer de suivi (PRA-02)." };
+    return {
+      error:
+        "Votre compte n'est pas actif : vous ne pouvez pas créer de suivi (PRA-02).",
+    };
   }
   if (!user.protocolAcceptedAt) {
     return { error: "Vous devez d'abord accepter le protocole de suivi." };
   }
 
-  const mainIndication = String(formData.get("mainIndication") ?? "");
-  const sessionNumber = Number(formData.get("sessionNumber") ?? 1);
-  const sessionDate = String(formData.get("sessionDate") ?? "");
-  if (!mainIndication || !sessionDate || !Number.isInteger(sessionNumber) || sessionNumber < 1) {
-    return { error: "Merci de renseigner les champs obligatoires." };
+  let result;
+  try {
+    result = await createCareEpisode(user.id, parseEpisode(formData));
+  } catch (error) {
+    if (error instanceof RegistryValidationError)
+      return { error: error.message };
+    throw error;
   }
-
-  const { episode, token } = await createEpisode({
-    practitionerId: user.id,
-    sessionNumber,
-    sessionDate: new Date(sessionDate),
-    mainIndication,
-    ropFocus: String(formData.get("ropFocus") ?? "") || undefined,
-    ageBand: String(formData.get("ageBand") ?? "") || undefined,
-    sex: String(formData.get("sex") ?? "") || undefined,
-    contactEmail: String(formData.get("contactEmail") ?? "") || undefined,
-  });
-
-  await logAudit(user.id, "CREATE_EPISODE", { objectType: "Episode", objectId: episode.id });
+  const { episode, token } = result;
+  revalidatePath("/praticien");
+  revalidatePath("/praticien/patients");
+  revalidatePath(`/praticien/patient/${episode.patientId}`);
 
   const base = process.env.APP_BASE_URL ?? "http://localhost:3000";
   const link = `${base}/s/${token}`;
@@ -126,7 +134,10 @@ export async function createEpisodeAction(
   return { link, qrDataUrl, episodeId: episode.id };
 }
 
-export async function updateAlertAction(alertId: string, status: string): Promise<void> {
+export async function updateAlertAction(
+  alertId: string,
+  status: string,
+): Promise<void> {
   const user = await requirePractitioner();
   const alert = await prisma.alert.findUnique({
     where: { id: alertId },
@@ -134,14 +145,25 @@ export async function updateAlertAction(alertId: string, status: string): Promis
   });
   // Cloisonnement strict : uniquement les alertes de ses propres patients (PRI-05)
   if (!alert || alert.episode.practitionerId !== user.id) {
-    await logAudit(user.id, "ALERT_ACTION", { objectId: alertId, outcome: "DENIED" });
+    await logAudit(user.id, "ALERT_ACTION", {
+      objectId: alertId,
+      outcome: "DENIED",
+    });
     throw new Error("FORBIDDEN");
   }
   await prisma.alert.update({
     where: { id: alertId },
-    data: { status: status as AlertStatus, reviewedAt: new Date(), reviewerId: user.id },
+    data: {
+      status: status as AlertStatus,
+      reviewedAt: new Date(),
+      reviewerId: user.id,
+    },
   });
-  await logAudit(user.id, "ALERT_ACTION", { objectType: "Alert", objectId: alertId, detail: status });
+  await logAudit(user.id, "ALERT_ACTION", {
+    objectType: "Alert",
+    objectId: alertId,
+    detail: status,
+  });
   revalidatePath("/praticien/alertes");
   revalidatePath("/praticien");
 }
@@ -157,12 +179,15 @@ export async function regenerateLinkAction(
   episodeId: string,
   // état précédent requis par useActionState via bind
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  _prev: RegenerateLinkState
+  _prev: RegenerateLinkState,
 ): Promise<RegenerateLinkState> {
   const user = await requirePractitioner();
   const episode = await prisma.episode.findUnique({ where: { id: episodeId } });
   if (!episode || episode.practitionerId !== user.id) {
-    await logAudit(user.id, "REGENERATE_LINK", { objectId: episodeId, outcome: "DENIED" });
+    await logAudit(user.id, "REGENERATE_LINK", {
+      objectId: episodeId,
+      outcome: "DENIED",
+    });
     return { error: "Accès refusé." };
   }
   const token = generateToken();
@@ -173,7 +198,10 @@ export async function regenerateLinkAction(
       linkExpiresAt: new Date(Date.now() + 45 * 86400 * 1000),
     },
   });
-  await logAudit(user.id, "REGENERATE_LINK", { objectType: "Episode", objectId: episodeId });
+  await logAudit(user.id, "REGENERATE_LINK", {
+    objectType: "Episode",
+    objectId: episodeId,
+  });
   const base = process.env.APP_BASE_URL ?? "http://localhost:3000";
   const link = `${base}/s/${token}`;
   const qrDataUrl = await QRCode.toDataURL(link, { width: 280, margin: 2 });

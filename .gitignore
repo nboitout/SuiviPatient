@@ -7,3 +7,5 @@ node_modules/
 .env.production
 next-env.d.ts
 *.tsbuildinfo
+.playwright-cli/
+output/playwright/
