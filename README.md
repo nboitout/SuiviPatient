@@ -42,7 +42,19 @@ Cet aperçu propose les formulaires initial, à 48 h et à 3 semaines. Il utilis
 questions, conserve les réponses uniquement en mémoire et ne contacte jamais l’API de
 soumission. Le suivi réel reste accessible uniquement par lien personnel ou QR code.
 
-## Architecture
+## Proposition de design à explorer
+
+La page `/proposition`, liée depuis l’accueil, donne accès aux deux maquettes
+interactives du nouveau design : parcours patient (accueil, bureau et mobile),
+puis espace praticien (patients, dossier individuel et observatoire agrégé).
+Les exemples sont entièrement fictifs et n’appellent aucune API patient.
+Ces pages permettent de revoir la proposition ; elles ne remplacent pas les
+parcours réels et ne modifient pas les droits d’accès.
+
+- [Revue, règles de partage et plan de réalisation](docs/proposition-design-suivi-patient.md)
+- [Sources et exports des maquettes](docs/maquettes/suivi-patient/README.md)
+
+## Architecture technique
 
 - **Next.js 16 (App Router) + React 19 + TypeScript** — même stack que le site ROP.
 - **Prisma + PostgreSQL** (compatible Vercel/Neon ; choisir un hébergement UE/EEE).

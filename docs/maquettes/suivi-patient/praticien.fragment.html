@@ -1,0 +1,95 @@
+<style>
+#rop-practice { --p-bg:light-dark(#f3f5ee,#17221c); --p-paper:light-dark(#fff,#222f27); --p-text:light-dark(#243c2e,#eef4eb); --p-muted:light-dark(#5c6e60,#b7c7b9); --p-soft:light-dark(#e6ecde,#354634); --p-line:light-dark(#d9e1d3,#475c48); --p-accent:light-dark(#345b43,#b7d3a5); --p-on:light-dark(#fff,#20331e); --p-warn:light-dark(#80552c,#edc398); --p-warn-bg:light-dark(#f8eedc,#423a2b); font:15px/1.5 'Segoe UI',Arial,sans-serif; color:var(--p-text); background:var(--p-bg); border:1px solid var(--p-line); border-radius:20px; min-width:0; overflow-wrap:anywhere; }
+#rop-practice * { box-sizing:border-box; }
+#rop-practice h1,#rop-practice h2,#rop-practice h3,#rop-practice p { margin:0; }
+#rop-practice button,#rop-practice input,#rop-practice select { font:inherit; }
+#rop-practice button { color:inherit; }
+#rop-practice .pp-header { padding:20px 26px; display:flex; justify-content:space-between; align-items:center; gap:16px; border-bottom:1px solid var(--p-line); }
+#rop-practice .pp-brand { display:flex; align-items:center; gap:11px; font-size:18px; font-weight:650; }
+#rop-practice .pp-mark { width:37px; height:37px; border:1px solid var(--p-accent); border-radius:50%; display:grid; place-items:center; font:12px Georgia,serif; }
+#rop-practice .pp-sub { display:block; color:var(--p-muted); font-size:10px; letter-spacing:1.5px; text-transform:uppercase; }
+#rop-practice .pp-account { font-size:12px; color:var(--p-muted); padding-right:65px; }
+#rop-practice .pp-layout { display:grid; grid-template-columns:190px minmax(0,1fr); min-height:620px; }
+#rop-practice .pp-side { padding:24px 16px; border-right:1px solid var(--p-line); }
+#rop-practice .pp-label { color:var(--p-muted); font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:1.5px; }
+#rop-practice .pp-side .pp-label { padding:7px 12px 16px; }
+#rop-practice .pp-nav { display:flex; flex-direction:column; gap:6px; }
+#rop-practice .pp-nav button { display:flex; align-items:center; gap:11px; width:100%; border:0; background:none; text-align:left; padding:13px 12px; min-height:48px; border-radius:11px; font-size:14px; }
+#rop-practice .pp-nav button[aria-current=page] { background:var(--p-soft); font-weight:650; }
+#rop-practice .pp-side-note { margin:24px 10px 0; padding-top:18px; border-top:1px solid var(--p-line); font-size:12px; color:var(--p-muted); }
+#rop-practice .pp-main { padding:30px; min-width:0; }
+#rop-practice h1 { font-size:31px; font-weight:650; line-height:1.2; letter-spacing:-1px; margin:7px 0 10px; }
+#rop-practice h2 { font-size:19px; font-weight:600; line-height:1.35; }
+#rop-practice .pp-intro { color:var(--p-muted); margin-bottom:24px; max-width:680px; font-size:14px; }
+#rop-practice .pp-pills { display:flex; flex-wrap:wrap; gap:7px; margin:18px 0; }
+#rop-practice .pp-tag { display:inline-flex; align-items:center; gap:7px; padding:5px 10px; background:var(--p-soft); border-radius:7px; font-size:12px; }
+#rop-practice .pp-tag.wait { color:var(--p-warn); background:var(--p-warn-bg); }
+#rop-practice .pp-toolbar { display:flex; gap:14px; align-items:end; flex-wrap:wrap; margin:22px 0; }
+#rop-practice .pp-toolbar label { display:flex; flex-direction:column; gap:6px; font-size:12px; color:var(--p-muted); flex:1; min-width:160px; }
+#rop-practice input,#rop-practice select { border:1px solid var(--p-line); border-radius:10px; padding:11px 12px; color:var(--p-text); background:var(--p-paper); width:100%; min-height:46px; font-size:16px; }
+#rop-practice .pp-list { background:var(--p-paper); border:1px solid var(--p-line); border-radius:15px; padding:0 18px; }
+#rop-practice .pp-patient { display:grid; grid-template-columns:minmax(0,1.1fr) minmax(0,1fr) auto; align-items:center; gap:15px; padding:20px 0; border-bottom:1px solid var(--p-line); }
+#rop-practice .pp-patient:last-child { border-bottom:0; }
+#rop-practice .pp-code { font-weight:650; font-size:16px; display:block; }
+#rop-practice .pp-small { color:var(--p-muted); font-size:12px; }
+#rop-practice .pp-button { min-height:46px; padding:10px 14px; border:1px solid var(--p-line); border-radius:10px; background:var(--p-paper); font-size:13px; font-weight:600; }
+#rop-practice .pp-primary { background:var(--p-accent); color:var(--p-on); border-color:var(--p-accent); }
+#rop-practice .pp-link { border:0; background:none; text-decoration:underline; text-underline-offset:4px; min-height:44px; padding:8px 0; color:var(--p-muted); }
+#rop-practice .pp-foot { display:flex; gap:12px; justify-content:space-between; flex-wrap:wrap; padding:16px 26px; border-top:1px solid var(--p-line); font-size:12px; color:var(--p-muted); }
+#rop-practice .pp-note { padding:15px 18px; margin:22px 0 0; border-radius:12px; background:var(--p-soft); color:var(--p-muted); font-size:13px; }
+#rop-practice .pp-metrics { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px; margin:24px 0; }
+#rop-practice .pp-metric { background:var(--p-paper); padding:22px; border:1px solid var(--p-line); border-radius:15px; }
+#rop-practice .pp-metric strong { display:block; font-size:34px; font-weight:600; letter-spacing:-1px; margin:4px 0; }
+#rop-practice .pp-metric h2 { font-size:14px; color:var(--p-muted); }
+#rop-practice .pp-table { width:100%; border-collapse:collapse; font-size:14px; margin:16px 0; }
+#rop-practice .pp-table th,#rop-practice .pp-table td { text-align:left; padding:13px 8px; border-bottom:1px solid var(--p-line); }
+#rop-practice .pp-table th { color:var(--p-muted); font-weight:500; font-size:12px; }
+#rop-practice .pp-table td:last-child,#rop-practice .pp-table th:last-child { text-align:right; }
+#rop-practice .pp-timeline { margin:18px 0; }
+#rop-practice .pp-event { display:flex; align-items:center; gap:13px; padding:13px 0; border-bottom:1px solid var(--p-line); }
+#rop-practice .pp-dot { display:grid; place-items:center; border-radius:50%; width:30px; height:30px; flex:0 0 30px; background:var(--p-soft); font-size:12px; }
+#rop-practice details { margin-top:22px; color:var(--p-muted); font-size:13px; }
+#rop-practice summary { padding:10px 0; min-height:44px; font-weight:600; }
+#rop-practice details p { margin:10px 0; }
+#rop-practice .pp-empty { padding:30px 22px; border:1px solid var(--p-line); border-radius:15px; background:var(--p-paper); }
+#rop-practice .pp-empty p { color:var(--p-muted); margin-top:12px; }
+@media(max-width:800px) { #rop-practice .pp-layout { grid-template-columns:160px minmax(0,1fr); } #rop-practice .pp-main { padding:24px 20px; } #rop-practice .pp-side { padding:20px 10px; } #rop-practice .pp-patient { grid-template-columns:1fr auto; } #rop-practice .pp-patient .pp-status { grid-column:1; grid-row:2; } #rop-practice .pp-patient button { grid-column:2; grid-row:1 / 3; } }
+@media(max-width:560px) { #rop-practice .pp-layout { display:block; } #rop-practice .pp-side { border-right:0; border-bottom:1px solid var(--p-line); padding:9px; } #rop-practice .pp-side>.pp-label,#rop-practice .pp-side-note { display:none; } #rop-practice .pp-nav { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:5px; } #rop-practice .pp-nav button { justify-content:center; padding:12px 8px; } #rop-practice .pp-header { padding:17px; flex-wrap:wrap; } #rop-practice .pp-account { padding:0; } #rop-practice .pp-main { padding:25px 16px; } #rop-practice .pp-metrics { grid-template-columns:1fr; gap:10px; } #rop-practice h1 { font-size:28px; } #rop-practice .pp-patient { display:flex; flex-wrap:wrap; gap:10px; } #rop-practice .pp-patient>div { width:100%; } #rop-practice .pp-patient button { width:100%; } #rop-practice .pp-table { font-size:12px; } #rop-practice .pp-table th,#rop-practice .pp-table td { padding:12px 5px; } }
+@media(max-width:560px) { #rop-practice .pp-toolbar label { flex:0 0 100%; } }
+</style>
+<div id="rop-practice" lang="fr" aria-label="Espace praticien et observatoire ROP">
+ <header class="pp-header"><div class="pp-brand"><span class="pp-mark">ROP</span><div>Suivi Patient<span class="pp-sub">Espace praticien</span></div></div><div class="pp-account">Cabinet de démonstration<br><strong>Compte personnel</strong></div></header>
+ <div class="pp-layout"><aside class="pp-side"><div class="pp-label">Mon espace</div><nav class="pp-nav" aria-label="Navigation praticien"><button type="button" class="cursor-interaction" data-view="patients" aria-current="page">Mes patients</button><button type="button" class="cursor-interaction" data-view="network">Observatoire ROP</button></nav><div class="pp-side-note">Dossiers individuels :<br>mes patients uniquement.<br><br>Réseau :<br>statistiques agrégées.</div></aside><main id="pp-main" class="pp-main"></main></div>
+ <footer class="pp-foot"><span>Proposition · Données entièrement fictives</span><span>Aucune connexion à des dossiers réels</span></footer>
+</div>
+<script>
+(() => {
+ const root=document.getElementById('rop-practice'),main=root.querySelector('#pp-main');
+ const records=[
+  {id:'PT-2401',reason:'Douleur / mobilité',status:'Nouveau bilan',note:'Bilan à 3 semaines reçu le 6 nov.',sessions:2,start:'16 oct. 2026',d2:'18 oct. 2026',d21:'6 nov. 2026',complete:true,scores:[6,4]},
+  {id:'PT-2418',reason:'Sommeil',status:'Suivi en cours',note:'Prochain bilan le 10 nov.',sessions:1,start:'20 oct. 2026',d2:'22 oct. 2026',d21:'10 nov. 2026',complete:false,scores:[5,null]},
+  {id:'PT-2430',reason:'Confort digestif',status:'Bilan attendu',note:'Échéance du 4 nov. dépassée',sessions:1,start:'14 oct. 2026',d2:'16 oct. 2026',d21:'4 nov. 2026',complete:false,scores:[7,null]}
+ ];
+ const cohorts={all:{patients:240,episodes:312,due:200,replies:150,improved:111,pairs:120,delta:'−1,8'},pain:{patients:80,episodes:100,due:70,replies:52,improved:37,pairs:44,delta:'−2,1'},pelvic:null};
+ const state={view:'patients',patient:null,query:'',filter:'all',cohort:'all'};
+ const prefs={radius:20};
+ const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+ const pct=(a,b)=>Math.round(100*a/b)+' %';
+ function rows(){const visible=records.filter(r=>r.id.toLowerCase().includes(state.query.toLowerCase())&&(state.filter==='all'||state.filter===r.status));root.querySelector('#pp-rows').innerHTML=visible.length?visible.map(r=>`<article class="pp-patient"><div><span class="pp-code">${r.id}</span><span class="pp-small">${r.reason} · ${r.sessions} séance${r.sessions>1?'s':''}</span></div><div class="pp-status"><span class="pp-tag ${r.status==='Bilan attendu'?'wait':''}">${r.status}</span><p class="pp-small" style="margin-top:7px">${r.note}</p></div><button type="button" class="pp-button cursor-interaction" data-patient="${r.id}" aria-label="Ouvrir le dossier ${r.id}">Ouvrir →</button></article>`).join(''):'<p class="pp-small" style="padding:24px 0">Aucun dossier ne correspond à votre recherche.</p>';root.querySelector('#pp-found').textContent=visible.length+' dossier'+(visible.length>1?'s':'');}
+ function patients(){main.innerHTML=`<div class="pp-label">Votre cabinet · 6 novembre 2026</div><h1>Mes patients</h1><p class="pp-intro">Retrouvez leurs réponses, leurs séances et leur évolution dans un même dossier.</p><div class="pp-pills"><span class="pp-tag">3 patients</span><span class="pp-tag">1 nouveau bilan</span><span class="pp-tag wait">1 bilan attendu</span></div><div class="pp-toolbar"><label>Code patient<input id="pp-search" type="search" placeholder="Ex. PT-2401" value="${esc(state.query)}"></label><label>État du suivi<select id="pp-filter"><option value="all">Tous les suivis</option><option>Nouveau bilan</option><option>Suivi en cours</option><option>Bilan attendu</option></select></label></div><p id="pp-found" class="pp-small" style="margin-bottom:10px" aria-live="polite"></p><div id="pp-rows" class="pp-list"></div><div class="pp-note">Chaque réponse rejoint le dossier du patient rattaché à votre compte. Son identité reste dans votre dossier local, avec ce même code de référence.</div>`;root.querySelector('#pp-filter').value=state.filter;rows();}
+ function patient(){const r=records.find(x=>x.id===state.patient);main.innerHTML=`<button type="button" class="pp-link cursor-interaction" data-back>← Mes patients</button><div class="pp-label" style="margin-top:12px">Dossier de mon cabinet</div><h1>${r.id}</h1><p class="pp-intro">${r.reason} · 1 épisode · ${r.sessions} séance${r.sessions>1?'s':''}</p><span class="pp-tag ${r.status==='Bilan attendu'?'wait':''}">${r.status}</span><h2 style="margin-top:25px">Le suivi en un regard</h2><div class="pp-timeline"><div class="pp-event"><span class="pp-dot">✓</span><div><strong>Questionnaire initial reçu</strong><p class="pp-small">${r.start}</p></div></div><div class="pp-event"><span class="pp-dot">✓</span><div><strong>Retour à 48 h reçu</strong><p class="pp-small">${r.d2}</p></div></div><div class="pp-event"><span class="pp-dot">${r.complete?'✓':'·'}</span><div><strong>Bilan à 3 semaines ${r.complete?'reçu':'attendu'}</strong><p class="pp-small">${r.d21}</p></div></div></div><h2>Réponses du patient</h2><table class="pp-table"><thead><tr><th>Mesure</th><th>Initial</th><th>3 semaines</th></tr></thead><tbody><tr><td>Symptôme principal<br><span class="pp-small">Intensité sur 10</span></td><td>${r.scores[0]}</td><td>${r.scores[1]===null?'Non reçu':r.scores[1]}</td></tr></tbody></table><p class="pp-small">0 : aucun symptôme · 10 : pire imaginable</p><details><summary class="cursor-interaction">Voir les séances</summary><p>Séance 1 · ${r.start}</p>${r.sessions===2?'<p>Séance 2 · 30 oct. 2026</p>':''}</details><div class="pp-note">Ce dossier est individuel et confidentiel. Les autres praticiens consultent uniquement les statistiques du réseau, sans accès à ce dossier.</div>`;}
+ function stats(){const c=cohorts[state.cohort],body=root.querySelector('#pp-stat-body');if(!c){body.innerHTML=`<div class="pp-empty" role="status"><span class="pp-tag">Résultat non publié</span><h2 style="margin-top:14px">Effectif insuffisant</h2><p>Cette sélection est trop restreinte pour publier des statistiques. Choisissez un groupe plus large.</p><p class="pp-small">Les effectifs précis et les résultats de ce groupe ne sont pas affichés.</p></div>`;return;}
+  body.innerHTML=`<p class="pp-small">${c.patients} dossiers patients distincts · ${c.episodes} épisodes dans cette sélection</p><div class="pp-metrics"><section class="pp-metric"><h2>Bilans à 3 semaines reçus</h2><strong>${pct(c.replies,c.due)}</strong><p class="pp-small">${c.replies} réponses / ${c.due} bilans arrivés à échéance</p></section><section class="pp-metric"><h2>Amélioration ressentie à 3 semaines</h2><strong>${pct(c.improved,c.replies)}</strong><p class="pp-small">${c.improved} réponses « mieux » ou « beaucoup mieux » / ${c.replies}</p></section></div><section><h2>Évolution du symptôme principal</h2><table class="pp-table"><thead><tr><th>Indicateur</th><th>Résultat</th></tr></thead><tbody><tr><td>Variation moyenne entre l’initial et 3 semaines</td><td><strong>${c.delta} / 10</strong></td></tr><tr><td>Épisodes avec deux mesures disponibles</td><td>${c.pairs}</td></tr></tbody></table><p class="pp-small">Variation = score à 3 semaines − score initial. Une valeur négative correspond à une intensité rapportée plus faible.</p></section><div class="pp-note">Ces résultats décrivent l’évolution rapportée. Ils ne démontrent pas, à eux seuls, une efficacité du traitement.</div>`;
+ }
+ function network(){main.innerHTML=`<div class="pp-label">Repères collectifs · Accès praticiens</div><h1>Observatoire ROP</h1><p class="pp-intro">Comprendre les tendances du réseau à partir de statistiques agrégées, sans ouvrir de dossiers individuels.</p><div class="pp-pills"><span class="pp-tag">Réseau ROP</span><span class="pp-tag">Exemples fictifs</span></div><div class="pp-toolbar"><label>Indication<select id="pp-cohort"><option value="all">Toutes les indications</option><option value="pain">Douleur / mobilité</option><option value="pelvic">Pelvien / uro-génital</option></select></label><div class="pp-small" style="padding:12px 0">Cohorte close · T3 2026</div></div><div id="pp-stat-body" aria-live="polite"></div><details><summary class="cursor-interaction">Comprendre le périmètre des statistiques</summary><p>Seules les données éligibles à l’usage collectif prévu sont incluses. Les résultats sont calculés avant publication. Aucun code patient, commentaire libre ou dossier individuel n’est accessible ici.</p><p>Les petits groupes sont masqués. Les filtres et les totaux doivent également empêcher de reconstituer leurs résultats. La méthode d’anonymisation doit être validée avant ouverture de cet espace.</p><p>Les dénominateurs distinguent patients, épisodes, bilans arrivés à échéance et réponses effectivement reçues. Les chiffres affichés dans cette maquette sont entièrement fictifs.</p></details>`;root.querySelector('#pp-cohort').value=state.cohort;stats();}
+ function render(){root.querySelectorAll('[data-view]').forEach(b=>{if(b.dataset.view===state.view)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current');});if(state.view==='network')network();else if(state.patient)patient();else patients();}
+ function save(){window.openai?.setWidgetState?.({modelContent:{view:state.view,cohort:state.cohort,proposal:'Practitioner workspace and aggregate observatory'},privateContent:{view:state.view,cohort:state.cohort,radius:prefs.radius}})?.catch(()=>{});}
+ function restore(snapshot){const s=snapshot?.privateContent;if(!s)return;state.view=s.view==='network'?'network':'patients';state.cohort=Object.hasOwn(cohorts,s.cohort)?s.cohort:'all';if(Number.isFinite(s.radius))prefs.radius=Math.max(0,Math.min(26,s.radius));root.style.borderRadius=prefs.radius+'px';}
+ restore(window.openai?.widgetState);render();
+ root.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;if(b.dataset.view){state.view=b.dataset.view;state.patient=null;render();save();}else if(b.dataset.patient){state.patient=b.dataset.patient;render();}else if(b.hasAttribute('data-back')){state.patient=null;render();}});
+ root.addEventListener('input',e=>{if(e.target.id==='pp-search'){state.query=e.target.value;rows();}});
+ root.addEventListener('change',e=>{if(e.target.id==='pp-filter'){state.filter=e.target.value;rows();}if(e.target.id==='pp-cohort'){state.cohort=e.target.value;stats();save();}});
+ window.addEventListener('openai:set_globals',e=>{restore(e.detail?.globals?.widgetState);render();});
+ if(globalThis.Tweak){const t=new Tweak({container:root,onChange:()=>{root.style.borderRadius=prefs.radius+'px';save();}});t.addSlider(prefs,'radius',{label:'Arrondi de la fenêtre',min:0,max:26,unit:'px'});}
+})();
+</script>

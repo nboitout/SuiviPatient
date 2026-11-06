@@ -43,6 +43,10 @@ export default function Home() {
         </Link>
       </div>
 
+      <p style={{ textAlign: "center" }}>
+        <Link href="/proposition">Découvrir la proposition de nouveau design →</Link>
+      </p>
+
       <p className="muted" style={{ textAlign: "center" }}>
         Ce service ne remplace pas un avis médical. En cas d&apos;urgence, contactez le 15
         (SAMU) ou le 112.

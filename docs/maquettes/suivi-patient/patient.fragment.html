@@ -1,0 +1,244 @@
+<style>
+#rop-proposal .rop-app { --rp-bg:light-dark(#f4f5ee,#17211d); --rp-paper:light-dark(#ffffff,#222e27); --rp-ink:light-dark(#203c31,#edf4ec); --rp-muted:light-dark(#5b6e62,#b2c2b5); --rp-soft:light-dark(#e7ecdf,#304235); --rp-line:light-dark(#d7dfd2,#49604d); --rp-accent:light-dark(#315a45,#b5d0a4); --rp-on:light-dark(#ffffff,#1b3020); --rp-alert:light-dark(#814133,#f2b3a1); --rp-alert-bg:light-dark(#fff2eb,#422e28); background:var(--rp-bg); color:var(--rp-ink); font:15px/1.5 'Segoe UI',Arial,sans-serif; border:1px solid var(--rp-line); border-radius:20px; overflow-wrap:anywhere; min-width:0; }
+#rop-proposal .rop-app * { box-sizing:border-box; }
+#rop-proposal .rop-app h1,#rop-proposal .rop-app h2,#rop-proposal .rop-app h3,#rop-proposal .rop-app p { margin:0; }
+#rop-proposal .rop-app button,#rop-proposal .rop-app input,#rop-proposal .rop-app textarea { font:inherit; }
+#rop-proposal .rop-app button { color:inherit; }
+#rop-proposal .rp-stage { min-height:780px; }
+#rop-proposal .rp-head { display:flex; align-items:center; justify-content:space-between; padding:22px 30px; border-bottom:1px solid var(--rp-line); gap:16px; }
+#rop-proposal .rp-brand { display:flex; align-items:center; gap:11px; font-size:18px; font-weight:650; letter-spacing:-.4px; }
+#rop-proposal .rp-mark { border:1px solid var(--rp-accent); width:37px; height:37px; border-radius:50%; display:grid; place-items:center; font:12px Georgia,serif; letter-spacing:1px; }
+#rop-proposal .rp-subbrand { font-size:10px; text-transform:uppercase; letter-spacing:1.7px; color:var(--rp-muted); font-weight:600; }
+#rop-proposal .rp-demo { padding:7px 12px; border-radius:8px; background:var(--rp-soft); color:var(--rp-muted); font-size:12px; }
+#rop-proposal .rp-eyebrow { font-size:11px; text-transform:uppercase; letter-spacing:1.8px; color:var(--rp-accent); font-weight:650; }
+#rop-proposal .rp-button { border:1px solid var(--rp-line); border-radius:12px; background:var(--rp-paper); padding:12px 18px; min-height:48px; font-weight:600; text-decoration:none; display:inline-flex; align-items:center; justify-content:center; gap:20px; }
+#rop-proposal .rp-primary { background:var(--rp-accent); color:var(--rp-on)!important; border-color:var(--rp-accent); }
+#rop-proposal .rp-button:disabled { opacity:.5; cursor:default; }
+#rop-proposal .rp-link { border:0; background:none; padding:12px 0; text-decoration:underline; text-underline-offset:4px; color:var(--rp-muted)!important; min-height:44px; }
+#rop-proposal .rp-welcome { display:grid; grid-template-columns:1.1fr 1fr; gap:48px; padding:68px 46px 46px; align-items:center; }
+#rop-proposal .rp-welcome h1 { font-size:44px; line-height:1.08; font-weight:650; letter-spacing:-1.8px; margin:17px 0 22px; }
+#rop-proposal .rp-welcome h1 em { font:italic 48px/1.1 Georgia,serif; color:var(--rp-accent); }
+#rop-proposal .rp-welcome p { color:var(--rp-muted); max-width:390px; }
+#rop-proposal .rp-welcome .rp-button { margin:24px 0 12px; }
+#rop-proposal .rp-small { font-size:12px; color:var(--rp-muted); }
+#rop-proposal .rp-journey { background:var(--rp-soft); border-radius:22px; padding:26px; }
+#rop-proposal .rp-journey h2 { font-size:23px; line-height:1.25; font-weight:600; margin:10px 0 24px; }
+#rop-proposal .rp-milestone { display:grid; grid-template-columns:32px 1fr; gap:14px; position:relative; padding:16px 0; border-bottom:1px solid var(--rp-line); }
+#rop-proposal .rp-milestone:last-of-type { border-bottom:0; }
+#rop-proposal .rp-dot { border:1px solid var(--rp-line); border-radius:50%; width:30px; height:30px; display:grid; place-items:center; font-size:12px; background:var(--rp-paper); }
+#rop-proposal .rp-milestone.active .rp-dot { background:var(--rp-accent); color:var(--rp-on); border-color:var(--rp-accent); }
+#rop-proposal .rp-milestone strong { display:block; font-weight:650; }
+#rop-proposal .rp-milestone span { font-size:12px; color:var(--rp-muted); }
+#rop-proposal .rp-bottom { border-top:1px solid var(--rp-line); margin:16px 30px 0; padding:18px 0 20px; display:flex; justify-content:space-between; flex-wrap:wrap; gap:12px; color:var(--rp-muted); font-size:12px; }
+#rop-proposal .rp-consent { padding:36px; max-width:750px; margin:auto; }
+#rop-proposal .rp-consent h2 { font-size:30px; letter-spacing:-.8px; margin:9px 0 14px; }
+#rop-proposal .rp-consent p { color:var(--rp-muted); margin:8px 0 16px; }
+#rop-proposal .rp-consent label { display:flex; align-items:flex-start; gap:12px; margin:11px 0; background:var(--rp-paper); border:1px solid var(--rp-line); border-radius:12px; padding:14px; }
+#rop-proposal .rp-consent input { width:20px; height:20px; flex:0 0 20px; accent-color:var(--rp-accent); }
+#rop-proposal .rp-consent details { margin:20px 0; color:var(--rp-muted); }
+#rop-proposal .rp-consent summary { min-height:44px; padding:10px 0; }
+#rop-proposal .rp-layout { display:grid; grid-template-columns:220px minmax(0,1fr); gap:28px; padding:26px; }
+#rop-proposal .rp-sidebar { padding:12px 0; }
+#rop-proposal .rp-sidebar h2 { font-size:23px; line-height:1.25; margin:12px 0 24px; letter-spacing:-.6px; }
+#rop-proposal .rp-steps { display:flex; flex-direction:column; gap:9px; }
+#rop-proposal .rp-step { width:100%; display:flex; align-items:center; gap:11px; padding:12px 9px; border:0; background:none; text-align:left; border-radius:12px; font-size:13px!important; min-height:48px; }
+#rop-proposal .rp-step[aria-current=step] { background:var(--rp-soft); font-weight:650; }
+#rop-proposal .rp-step[aria-current=step] .rp-dot { background:var(--rp-accent); color:var(--rp-on); border-color:var(--rp-accent); }
+#rop-proposal .rp-sidebar-note { font-size:12px; color:var(--rp-muted); margin-top:24px!important; border-top:1px solid var(--rp-line); padding-top:20px; }
+#rop-proposal .rp-work { border-radius:18px; background:var(--rp-paper); padding:28px; min-width:0; }
+#rop-proposal .rp-work h2 { font-size:29px; letter-spacing:-.8px; line-height:1.2; margin:8px 0 10px; font-weight:650; }
+#rop-proposal .rp-intro { color:var(--rp-muted); font-size:14px; margin-bottom:23px!important; }
+#rop-proposal .rp-fields { display:grid; gap:25px; }
+#rop-proposal .rp-field { border:0; padding:0; margin:0; min-width:0; }
+#rop-proposal .rp-field legend { font-size:16px; font-weight:600; line-height:1.4; padding:0; margin-bottom:13px; width:100%; }
+#rop-proposal .rp-choices { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; }
+#rop-proposal .rp-choice { display:flex; align-items:center; gap:10px; border:1px solid var(--rp-line); border-radius:12px; background:var(--rp-paper); padding:11px 12px; min-height:48px; font-size:14px; }
+#rop-proposal .rp-choice:has(input:checked) { background:var(--rp-soft); border-color:var(--rp-accent); }
+#rop-proposal .rp-choice input { width:18px; height:18px; flex:0 0 18px; accent-color:var(--rp-accent); }
+#rop-proposal .rp-scale { display:grid; grid-template-columns:repeat(11,minmax(0,1fr)); gap:4px; }
+#rop-proposal .rp-number { position:relative; min-width:0; }
+#rop-proposal .rp-number input { position:absolute; width:1px; height:1px; opacity:0; }
+#rop-proposal .rp-number span { display:grid; place-items:center; height:48px; border:1px solid var(--rp-line); border-radius:9px; font-size:16px; font-weight:600; }
+#rop-proposal .rp-number input:checked+span { color:var(--rp-on); background:var(--rp-accent); border-color:var(--rp-accent); }
+#rop-proposal .rp-number input:focus-visible+span { outline:3px solid var(--rp-accent); outline-offset:2px; }
+#rop-proposal .rp-anchors { display:flex; justify-content:space-between; gap:25px; margin:9px 0 8px; color:var(--rp-muted); font-size:12px; }
+#rop-proposal .rp-anchors span:last-child { text-align:right; }
+#rop-proposal .rp-value { color:var(--rp-accent); font-size:12px; min-height:20px; margin-top:5px; }
+#rop-proposal .rp-field textarea { resize:vertical; min-height:110px; width:100%; padding:13px; border:1px solid var(--rp-line); border-radius:12px; color:var(--rp-ink); background:var(--rp-bg); font-size:16px; }
+#rop-proposal .rp-actions { display:flex; justify-content:space-between; align-items:center; gap:12px; border-top:1px solid var(--rp-line); margin-top:26px; padding-top:20px; }
+#rop-proposal .rp-error { margin-top:14px; color:var(--rp-alert); font-size:13px; }
+#rop-proposal .rp-warning { padding:15px; border-radius:12px; background:var(--rp-alert-bg); color:var(--rp-alert); margin-top:15px; font-size:13px; }
+#rop-proposal .rp-review { margin:18px 0 0; }
+#rop-proposal .rp-review-row { border-bottom:1px solid var(--rp-line); padding:12px 0; display:grid; grid-template-columns:1fr auto; gap:10px; font-size:13px; }
+#rop-proposal .rp-review-row strong { display:block; font-weight:600; }
+#rop-proposal .rp-review-row span { color:var(--rp-muted); }
+#rop-proposal .rp-complete { min-height:450px; display:flex; flex-direction:column; align-items:flex-start; justify-content:center; gap:18px; }
+#rop-proposal .rp-complete .rp-dot { width:58px; height:58px; font-size:24px; background:var(--rp-soft); }
+#rop-proposal .rp-mobile-stage { display:flex; justify-content:center; padding:0 0 8px; }
+#rop-proposal .rp-phone { width:390px; max-width:100%; border-radius:26px; }
+#rop-proposal .rp-phone .rp-head { padding:18px 22px; }
+#rop-proposal .rp-phone .rp-brand { font-size:17px; }
+#rop-proposal .rp-phone .rp-mark { width:30px; height:30px; font-size:10px; }
+#rop-proposal .rp-phone .rp-subbrand { font-size:9px; }
+#rop-proposal .rp-phone .rp-work { border-radius:0 0 25px 25px; padding:24px; min-height:675px; display:flex; flex-direction:column; }
+#rop-proposal .rp-phone .rp-fields { flex:1; }
+#rop-proposal .rp-phone .rp-choices { grid-template-columns:1fr; gap:7px; }
+#rop-proposal .rp-phone .rp-choice { padding:10px 13px; min-height:45px; }
+#rop-proposal .rp-phone .rp-choice:has(input:checked) { box-shadow:inset 3px 0 0 var(--rp-accent); }
+#rop-proposal .rp-phone .rp-field legend { font-size:25px; font-weight:650; line-height:1.22; letter-spacing:-.6px; margin:16px 0 19px; }
+#rop-proposal .rp-phone .rp-scale { grid-template-columns:repeat(auto-fit,minmax(44px,1fr)); gap:7px; }
+#rop-proposal .rp-phone .rp-actions { margin-top:23px; }
+#rop-proposal .rp-phone .rp-progress { margin:12px 0 4px; height:4px; background:var(--rp-soft); border-radius:4px; }
+#rop-proposal .rp-progress span { display:block; height:100%; background:var(--rp-accent); border-radius:4px; }
+#rop-proposal .rp-phone .rp-demo { background:none; font-size:11px; padding:0; }
+#rop-proposal .rp-phone .rp-intro { margin:8px 0 8px!important; }
+#rop-proposal .rp-phone .rp-review-row { grid-template-columns:1fr; }
+#rop-proposal .rp-phone .rp-review-row .rp-link { padding:2px 0; text-align:left; }
+@media(max-width:850px) {
+ #rop-proposal .rp-layout { grid-template-columns:175px minmax(0,1fr); gap:18px; padding:20px; }
+ #rop-proposal .rp-work { padding:22px; }
+ #rop-proposal .rp-scale { grid-template-columns:repeat(auto-fit,minmax(44px,1fr)); gap:6px; }
+ #rop-proposal .rp-welcome { gap:25px; padding:45px 28px; }
+ #rop-proposal .rp-welcome h1 { font-size:36px; }
+ #rop-proposal .rp-welcome h1 em { font-size:40px; }
+}
+@media(max-width:620px) {
+ #rop-proposal .rp-stage { min-height:850px; }
+ #rop-proposal .rp-head { padding:17px; flex-wrap:wrap; }
+ #rop-proposal .rp-welcome { grid-template-columns:1fr; padding:32px 20px; }
+ #rop-proposal .rp-layout { display:block; padding:16px; }
+ #rop-proposal .rp-sidebar { padding:0 0 16px; }
+ #rop-proposal .rp-sidebar h2 { font-size:21px; margin:6px 0 10px; }
+ #rop-proposal .rp-steps { flex-direction:row; flex-wrap:wrap; gap:3px; }
+ #rop-proposal .rp-step { width:auto; padding:5px; }
+ #rop-proposal .rp-step:not([aria-current=step]) .rp-step-text { display:none; }
+ #rop-proposal .rp-sidebar-note { display:none; }
+ #rop-proposal .rp-work { padding:20px 16px; }
+ #rop-proposal .rp-work h2 { font-size:26px; }
+ #rop-proposal .rp-choices { grid-template-columns:1fr; }
+ #rop-proposal .rp-review-row { grid-template-columns:1fr; }
+ #rop-proposal .rp-review-row .rp-link { text-align:left; }
+ #rop-proposal .rp-bottom { margin:10px 20px 0; }
+ #rop-proposal .rp-consent { padding:24px 20px; }
+ #rop-proposal .rp-phone .rp-work { padding:20px; }
+ #rop-proposal .rp-actions { flex-wrap:wrap; }
+}
+</style>
+<div id="rop-proposal">
+ <div class="viz-carousel" aria-label="Proposition Suivi Patient : accueil, bureau et mobile">
+  <section data-variant="Accueil" class="rp-stage" aria-label="Accueil patient">
+   <div id="rp-welcome-app" class="rop-app" lang="fr" aria-label="Design de l’accueil">
+    <header class="rp-head"><div class="rp-brand"><span class="rp-mark">ROP</span><div>Suivi Patient<div class="rp-subbrand">Institut R.O.P.</div></div></div><span class="rp-demo">Maquette · aucun envoi</span></header>
+    <div id="rp-welcome-content">
+     <div class="rp-welcome">
+      <div><div class="rp-eyebrow">Votre suivi commence ici</div><h1>Votre ressenti,<br><em>au fil des jours.</em></h1><p>Quelques questions pour partager votre vécu et préparer votre suivi avec votre praticien.</p><button class="rp-button rp-primary cursor-interaction" type="button" id="rp-start">Commencer mon suivi <span aria-hidden="true">→</span></button><p class="rp-small">Environ 3 minutes · Aucun compte à créer</p></div>
+      <div class="rp-journey"><div class="rp-eyebrow">Trois rendez-vous avec vous</div><h2>Un point de départ.<br>Un suivi dans le temps.</h2><div class="rp-milestone active"><div class="rp-dot">1</div><div><strong>Aujourd’hui</strong><span>Votre situation et votre ressenti initial</span></div></div><div class="rp-milestone"><div class="rp-dot">2</div><div><strong>À 48 heures</strong><span>Votre évolution et les réactions ressenties</span></div></div><div class="rp-milestone"><div class="rp-dot">3</div><div><strong>À 3 semaines</strong><span>Le bilan de votre évolution</span></div></div></div>
+     </div>
+     <footer class="rp-bottom"><span>Vos réponses sont accessibles à votre praticien.</span><span>Ce suivi ne remplace pas un avis médical.</span></footer>
+    </div>
+    <div id="rp-consent-content" class="rp-consent" hidden>
+     <div class="rp-eyebrow">Avant de commencer</div><h2>Un suivi, avec votre accord.</h2><p>Vos réponses permettent de suivre votre évolution ressentie et les réactions après une séance ROP. Aucun nom ne vous est demandé.</p>
+     <details><summary class="cursor-interaction">Lire la note d’information</summary><p>Votre praticien accède à vos réponses. Avec votre accord distinct, l’Institut ROP peut utiliser des données pseudonymisées ou agrégées pour la qualité, la formation et l’analyse observationnelle. Vous pouvez retirer votre consentement et arrêter les rappels.</p><p>Ce questionnaire ne remplace pas un avis médical. En cas de symptômes sévères, inhabituels ou inquiétants, contactez un médecin ou le 15 (SAMU) / 112.</p></details>
+     <label class="cursor-interaction"><input type="checkbox" id="rp-notice"><span>J’ai lu et compris la note d’information.</span></label>
+     <label class="cursor-interaction"><input type="checkbox" id="rp-outcomes"><span>J’accepte le traitement de mes réponses pour mon suivi ROP et leur accès par mon praticien.</span></label>
+     <label class="cursor-interaction"><input type="checkbox" id="rp-research"><span><strong>Optionnel</strong> — Contribuer aux analyses de l’Institut avec mes données pseudonymisées ou agrégées.</span></label>
+     <label class="cursor-interaction"><input type="checkbox" id="rp-reminders"><span><strong>Optionnel</strong> — Recevoir des rappels par e-mail à 48 h et à 3 semaines.</span></label>
+     <p id="rp-reminder-note" class="rp-small" hidden>L’adresse e-mail serait demandée ici, uniquement pour les rappels.</p>
+     <div class="rp-actions"><button type="button" class="rp-link cursor-interaction" id="rp-consent-back">← Retour</button><button type="button" class="rp-button rp-primary cursor-interaction" id="rp-consent-next" disabled>Continuer →</button></div><p id="rp-consent-state" class="rp-small" aria-live="polite"></p>
+    </div>
+   </div>
+  </section>
+  <section data-variant="Bureau" class="rp-stage" aria-label="Questionnaire initial sur ordinateur" hidden>
+   <div id="rp-desktop-app" class="rop-app" lang="fr" aria-label="Design du questionnaire bureau">
+    <header class="rp-head"><div class="rp-brand"><span class="rp-mark">ROP</span><div>Suivi Patient<div class="rp-subbrand">Institut R.O.P.</div></div></div><span class="rp-demo">Questionnaire initial · réponses fictives</span></header>
+    <div class="rp-layout"><aside class="rp-sidebar"><div class="rp-eyebrow">Aujourd’hui · Point de départ</div><h2>Prenons un instant<br>pour faire le point.</h2><nav id="rp-desktop-nav" class="rp-steps" aria-label="Étapes du questionnaire"></nav><p class="rp-sidebar-note">Vous pouvez revenir sur vos choix.<br><br>Vos réponses ne sont envoyées qu’après votre confirmation.</p></aside><main id="rp-desktop-main" class="rp-work"></main></div>
+    <footer class="rp-bottom"><span>Aujourd’hui <strong>•</strong> &nbsp; 48 h &nbsp; · &nbsp; 3 semaines</span><span>Maquette · aucun envoi · aucun dossier patient</span></footer>
+   </div>
+  </section>
+  <section data-variant="Mobile" class="rp-stage viz-dotted-background" aria-label="Suivi à 48 heures sur mobile" hidden>
+   <div class="rp-mobile-stage"><div id="rp-mobile-app" class="rop-app rp-phone" lang="fr" aria-label="Design du questionnaire mobile"><header class="rp-head"><div class="rp-brand"><span class="rp-mark">ROP</span><div>Suivi Patient<div class="rp-subbrand">Institut R.O.P.</div></div></div><span class="rp-demo">Maquette</span></header><main id="rp-mobile-main" class="rp-work"></main></div></div>
+  </section>
+ </div>
+</div>
+<script>
+(() => {
+ const root=document.getElementById('rop-proposal');
+ const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+ const reasons=['Douleur / mobilité','Confort digestif','Stress / anxiété','Sommeil','Fatigue','Pelvien / uro-génital','Post-traumatique / post-chirurgical','Autre'];
+ const signs=['Fièvre inexpliquée','Perte de poids inexpliquée','Sang dans les selles ou les urines','Douleur nocturne inhabituelle','Douleur thoracique','Essoufflement anormal','Faiblesse ou trouble neurologique (bras, jambe, parole, vision)','Aggravation progressive et continue','Fatigue sévère et inhabituelle','Aucun de ces signes'];
+ const changes=['Beaucoup mieux','Mieux','Un peu mieux','Inchangé','Un peu moins bien','Moins bien','Beaucoup moins bien'];
+ const fields={
+  reason:{label:'Motif principal de consultation',options:reasons},duration:{label:'Depuis combien de temps ressentez-vous ce problème ?',options:["Moins d’un mois",'1 à 3 mois','3 à 12 mois',"Plus de 12 mois",'Non applicable']},
+  symptom:{label:"Intensité de votre symptôme principal aujourd’hui",type:'scale',min:'Aucun symptôme',max:'Pire imaginable'},
+  daily:{label:'Gêne dans vos activités quotidiennes',type:'scale',min:'Pas limité(e)',max:'Extrêmement limité(e)'},
+  sleep:{label:'Qualité de votre sommeil ces 7 derniers jours',type:'scale',min:'Très mauvaise',max:'Excellente'},
+  energy:{label:'Énergie / vitalité ces 7 derniers jours',type:'scale',min:'Épuisé(e)',max:'Excellente vitalité'},
+  stress:{label:'Stress / tension émotionnelle ces 7 derniers jours',type:'scale',min:'Aucun',max:'Extrême'},
+  digestive:{label:'Confort digestif / viscéral',type:'scale',min:'Très inconfortable',max:'Très confortable',optional:true},
+  medical:{label:'Êtes-vous suivi(e) médicalement pour ce problème ?',options:['Oui','Non','Non applicable']},
+  safety:{label:'Présentez-vous actuellement l’un de ces signes ?',type:'multi',options:signs,exclusive:'Aucun de ces signes',help:'Cochez tout ce qui s’applique. Ces questions servent uniquement à votre sécurité.'},
+  comment:{label:'Commentaire libre',type:'text',optional:true,help:'Merci de ne pas saisir d’antécédents médicaux détaillés.'},
+  change:{label:'Votre symptôme principal depuis la séance',options:changes},
+  reactions:{label:'Avez-vous ressenti l’une de ces réactions ?',type:'multi',exclusive:'Aucune réaction',options:['Fatigue','Courbatures / sensibilité','Urines plus fréquentes','Changement de transit','Sensibilité émotionnelle','Rêves intenses','Besoin de repos','Aucune réaction','Autre']},
+  reactionIntensity:{label:'Intensité de la réaction la plus marquante',type:'scale',min:'Très légère',max:'Très intense',optional:true},
+  reactionDuration:{label:'Cette réaction a-t-elle duré plus de 72 h ?',options:['Oui','Non','Toujours en cours']},
+  advice:{label:'Avez-vous eu besoin d’un avis médical ou de soins urgents ?',options:['Oui','Non']}
+ };
+ const chapters=[{name:'Votre situation',intro:'Commençons par le motif de votre consultation.',ids:['reason','duration']},{name:'Votre ressenti',intro:'Choisissez le nombre qui correspond à votre ressenti.',ids:['symptom','daily']},{name:'Votre quotidien',intro:'Pensez à votre expérience des derniers jours.',ids:['sleep','energy','stress']},{name:'Votre sécurité',intro:'Quelques questions pour compléter votre suivi.',ids:['medical','safety']},{name:'Relire et envoyer',intro:'Prenez un instant pour vérifier vos réponses.',ids:['comment']}];
+ const d={index:1,answers:{reason:reasons[0],duration:'1 à 3 mois'},error:'',done:false};
+ const m={index:0,answers:{},error:'',done:false};
+ function idsFor(chapter){const ids=[...chapters[chapter].ids];if(chapter===2&&['Confort digestif','Pelvien / uro-génital'].includes(d.answers.reason))ids.push('digestive');return ids;}
+ function mobileIds(){return ['change','reactions',...(Array.isArray(m.answers.reactions)&&m.answers.reactions.some(x=>x!=='Aucune réaction')?['reactionIntensity']:[]),'reactionDuration','advice','comment'];}
+ function empty(v){return v===undefined||v===null||v===''||(Array.isArray(v)&&v.length===0);}
+ function field(id,prefix,state){const f=fields[id],v=state.answers[id];let content='';
+  if(f.type==='scale')content=`<div class="rp-scale">${Array.from({length:11},(_,n)=>`<label class="rp-number cursor-interaction"><input type="radio" name="${prefix}-${id}" data-field="${id}" value="${n}" ${v===n?'checked':''}><span>${n}</span></label>`).join('')}</div><div class="rp-anchors"><span>0 — ${esc(f.min)}</span><span>10 — ${esc(f.max)}</span></div><div class="rp-value" data-value="${id}" aria-live="polite">${empty(v)?'Aucune réponse sélectionnée':`Votre réponse : ${v} / 10`}</div>`;
+  else if(f.type==='text')content=`<textarea aria-label="${esc(f.label)} (optionnel)" data-field="${id}" maxlength="500" placeholder="Si vous souhaitez ajouter quelque chose…">${esc(v||'')}</textarea>`;
+  else content=`<div class="rp-choices">${f.options.map(o=>`<label class="rp-choice cursor-interaction"><input type="${f.type==='multi'?'checkbox':'radio'}" name="${prefix}-${id}" data-field="${id}" value="${esc(o)}" ${(Array.isArray(v)?v.includes(o):v===o)?'checked':''}><span>${esc(o)}</span></label>`).join('')}</div>`;
+  return `<fieldset class="rp-field"><legend>${esc(f.label)}${f.optional?' <span class="rp-small">(optionnel)</span>':''}</legend>${f.help?`<p class="rp-small" style="margin-bottom:12px">${esc(f.help)}</p>`:''}${content}</fieldset>`;
+ }
+ function review(ids,state,type){return `<div class="rp-review">${ids.map(id=>`<div class="rp-review-row"><div><strong>${esc(fields[id].label)}</strong><span>${empty(state.answers[id])?(fields[id].optional?'Non renseigné · optionnel':'À compléter'):esc(Array.isArray(state.answers[id])?state.answers[id].join(', '):`${state.answers[id]}${fields[id].type==='scale'?' / 10':''}`)}</span></div><button class="rp-link cursor-interaction" type="button" data-edit="${id}" aria-label="Modifier : ${esc(fields[id].label)}">Modifier</button></div>`).join('')}</div>`;}
+ const desktop=root.querySelector('#rp-desktop-main'),mobile=root.querySelector('#rp-mobile-main');
+ function safety(state,type){const alert=type==='desktop'?Array.isArray(state.answers.safety)&&state.answers.safety.some(x=>x!=='Aucun de ces signes'):['Moins bien','Beaucoup moins bien'].includes(state.answers.change)||state.answers.advice==='Oui';return alert?`<div class="rp-warning" role="status"><strong>Un point d’attention</strong><br>Si vos symptômes sont sévères ou inhabituels, veuillez demander un avis médical. Ce questionnaire ne remplace pas une prise en charge médicale.</div>`:'';}
+ function renderDesktop(){
+  root.querySelector('#rp-desktop-nav').innerHTML=chapters.map((c,i)=>`<button type="button" class="rp-step cursor-interaction" aria-label="${i+1} ${c.name}" data-chapter="${i}" ${d.index===i&&!d.done?'aria-current="step"':''}><span class="rp-dot">${i+1}</span><span class="rp-step-text">${c.name}</span></button>`).join('');
+  if(d.done){desktop.innerHTML=`<div class="rp-complete"><span class="rp-dot">✓</span><div class="rp-eyebrow">Fin de la démonstration</div><h2>Merci pour ce premier point.</h2><p>Dans le suivi réel, une confirmation apparaîtra après l’enregistrement de vos réponses.</p><div class="rp-journey"><strong>Prochain point : à 48 heures</strong><p class="rp-small">Accessible avec le même lien personnel.</p></div><p class="rp-small">Maquette : aucune réponse envoyée ni enregistrée.</p><button class="rp-link cursor-interaction" data-action="back" type="button">Revoir mes réponses</button></div>`;return;}
+  const c=chapters[d.index];desktop.innerHTML=`<div class="rp-eyebrow">Questionnaire initial · Étape ${d.index+1} sur 5</div><h2>${c.name}</h2><p class="rp-intro">${c.intro}</p><div class="rp-fields">${idsFor(d.index).map(id=>field(id,'desktop',d)).join('')}</div>${d.index===4?review(chapters.flatMap((_,i)=>i<4?idsFor(i):[]),d,'desktop'):''}${safety(d,'desktop')}${d.error?`<p role="alert" class="rp-error">${esc(d.error)}</p>`:''}<div class="rp-actions"><button type="button" class="rp-link cursor-interaction" data-action="back" ${d.index===0?'disabled':''}>← Retour</button><button type="button" class="rp-button rp-primary cursor-interaction" data-action="next">${d.index===4?'Simuler l’envoi':'Continuer'} <span aria-hidden="true">→</span></button></div><p class="rp-small" style="margin-top:12px">${d.index===4?'Aucun envoi réel dans cette maquette.':'Vos choix restent modifiables avant l’envoi.'}</p>`;
+ }
+ function renderMobile(){const ids=mobileIds();m.index=Math.min(m.index,ids.length);
+  if(m.done){mobile.innerHTML=`<div class="rp-complete"><span class="rp-dot">✓</span><div class="rp-eyebrow">Fin de la démonstration</div><h2>Merci pour votre retour.</h2><p>Le prochain bilan sera disponible à 3 semaines via le même lien.</p><p class="rp-small">Aucune réponse n’a été envoyée. Une confirmation réelle dépendra de l’enregistrement réussi.</p><button class="rp-link cursor-interaction" data-action="back" type="button">Revoir mes réponses</button></div>`;return;}
+  const reviewing=m.index===ids.length;
+  mobile.innerHTML=`<div class="rp-eyebrow">Suivi à 48 h · ${reviewing?'Dernière étape':`${m.index+1} sur ${ids.length}`}</div><div class="rp-progress" role="progressbar" aria-label="Progression dans les étapes" aria-valuemin="0" aria-valuemax="${ids.length}" aria-valuenow="${m.index}"><span style="width:${m.index/ids.length*100}%"></span></div>${reviewing?'<h2>Tout est prêt ?</h2><p class="rp-intro">Relisez vos réponses avant de confirmer.</p>':'<p class="rp-intro">Votre expérience depuis la séance.</p>'}<div class="rp-fields">${reviewing?review(ids,m,'mobile'):field(ids[m.index],'mobile',m)}</div>${safety(m,'mobile')}${m.error?`<p class="rp-error" role="alert">${esc(m.error)}</p>`:''}<div class="rp-actions"><button class="rp-link cursor-interaction" data-action="back" type="button" ${m.index===0?'disabled':''}>← Retour</button><button class="rp-button rp-primary cursor-interaction" data-action="next" type="button">${reviewing?'Simuler l’envoi':fields[ids[m.index]].optional?'Continuer / passer':'Continuer'} →</button></div><p class="rp-small" style="margin-top:14px;text-align:center">Réponses fictives · Aucun envoi</p>`;
+ }
+ function updateAnswer(event,state,container){const el=event.target,id=el.dataset.field;if(!id)return;const f=fields[id];state.error='';
+  if(f.type==='multi'){let v=Array.isArray(state.answers[id])?[...state.answers[id]]:[];v=el.checked?(el.value===f.exclusive?[el.value]:[...v.filter(x=>x!==f.exclusive),el.value]):v.filter(x=>x!==el.value);state.answers[id]=v;container.querySelectorAll(`input[data-field="${id}"]`).forEach(input=>input.checked=v.includes(input.value));}
+  else state.answers[id]=f.type==='scale'?Number(el.value):el.value;
+  const value=container.querySelector(`[data-value="${id}"]`);if(value)value.textContent=`Votre réponse : ${state.answers[id]} / 10`;
+  container.querySelector('.rp-error')?.remove();
+ }
+ desktop.addEventListener('change',e=>updateAnswer(e,d,desktop));desktop.addEventListener('input',e=>{if(e.target.tagName==='TEXTAREA')updateAnswer(e,d,desktop);});
+ mobile.addEventListener('change',e=>updateAnswer(e,m,mobile));mobile.addEventListener('input',e=>{if(e.target.tagName==='TEXTAREA')updateAnswer(e,m,mobile);});
+ root.querySelector('#rp-desktop-nav').addEventListener('click',e=>{const b=e.target.closest('[data-chapter]');if(b){d.index=Number(b.dataset.chapter);d.done=false;d.error='';renderDesktop();}});
+ desktop.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;d.error='';if(b.dataset.edit){d.index=chapters.findIndex((c,i)=>idsFor(i).includes(b.dataset.edit));renderDesktop();return;}
+  if(b.dataset.action==='back'){if(d.done){d.done=false;d.index=4;}else d.index=Math.max(0,d.index-1);}
+  if(b.dataset.action==='next'){const ids=d.index===4?chapters.flatMap((_,i)=>idsFor(i)):idsFor(d.index);const missing=ids.find(id=>!fields[id].optional&&empty(d.answers[id]));if(missing){d.error='Merci de répondre à cette question : '+fields[missing].label;d.index=chapters.findIndex((c,i)=>idsFor(i).includes(missing));}else if(d.index===4)d.done=true;else d.index++;}
+  renderDesktop();
+ });
+ mobile.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;const ids=mobileIds();m.error='';if(b.dataset.edit){m.index=ids.indexOf(b.dataset.edit);renderMobile();return;}
+  if(b.dataset.action==='back'){if(m.done){m.done=false;m.index=ids.length;}else m.index=Math.max(0,m.index-1);}
+  if(b.dataset.action==='next'){const reviewing=m.index===ids.length;const missing=(reviewing?ids:[ids[m.index]]).find(id=>!fields[id].optional&&empty(m.answers[id]));if(missing){m.index=ids.indexOf(missing);m.error='Choisissez une réponse pour continuer.';}else if(reviewing)m.done=true;else m.index++;}
+  renderMobile();
+ });
+ const welcome=root.querySelector('#rp-welcome-content'),consent=root.querySelector('#rp-consent-content');
+ root.querySelector('#rp-start').onclick=()=>{welcome.hidden=true;consent.hidden=false;};
+ root.querySelector('#rp-consent-back').onclick=()=>{welcome.hidden=false;consent.hidden=true;};
+ consent.addEventListener('change',()=>{root.querySelector('#rp-consent-next').disabled=!(root.querySelector('#rp-notice').checked&&root.querySelector('#rp-outcomes').checked);root.querySelector('#rp-reminder-note').hidden=!root.querySelector('#rp-reminders').checked;});
+ root.querySelector('#rp-consent-next').onclick=()=>{root.querySelector('#rp-consent-state').textContent='Choix simulés. Explorez le questionnaire avec les vues Bureau et Mobile ci-dessous.';};
+ renderDesktop();renderMobile();
+ const saved=window.openai?.widgetState?.privateContent;const designs={welcome:{radius:20},desktop:{radius:18},mobile:{radius:26}};
+ if(saved?.designs)for(const [key,value]of Object.entries(saved.designs))if(designs[key]&&Number.isFinite(value.radius))designs[key].radius=Math.max(0,Math.min(30,value.radius));
+ function applyDesign(){root.querySelector('#rp-welcome-app').style.borderRadius=designs.welcome.radius+'px';root.querySelector('#rp-desktop-app').style.borderRadius=designs.desktop.radius+'px';root.querySelector('#rp-mobile-app').style.borderRadius=designs.mobile.radius+'px';}
+ applyDesign();
+ window.addEventListener('openai:set_globals',event=>{const v=event.detail?.globals?.widgetState?.privateContent?.designs;if(v){for(const k of Object.keys(designs))if(Number.isFinite(v[k]?.radius))designs[k].radius=Math.max(0,Math.min(30,v[k].radius));applyDesign();}});
+ if(globalThis.Tweak)for(const [key,selector]of [['welcome','#rp-welcome-app'],['desktop','#rp-desktop-app'],['mobile','#rp-mobile-app']]){const tweak=new Tweak({container:root.querySelector(selector),onChange:()=>{applyDesign();window.openai?.setWidgetState?.({modelContent:{proposal:'Suivi Patient',designs},privateContent:{designs}})?.catch(()=>{});}});tweak.addSlider(designs[key],'radius',{label:'Arrondi de la fenêtre',min:0,max:30,unit:'px'});}
+})();
+</script>
