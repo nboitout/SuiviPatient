@@ -1,4 +1,4 @@
-import { requireAdmin } from "@/lib/auth";
+import { requireAdminPage as requireAdmin } from "@/lib/admin-access";
 import ChangePasswordForm from "@/components/ChangePasswordForm";
 
 export default async function AdminAccountPage() {

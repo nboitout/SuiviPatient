@@ -3,11 +3,12 @@
 import { useActionState } from "react";
 import { loginAction, type LoginState } from "@/app/praticien/actions";
 
-export default function LoginForm() {
+export default function LoginForm({ mode = "practitioner" }: { mode?: "admin" | "practitioner" }) {
   const [state, formAction, pending] = useActionState<LoginState, FormData>(loginAction, {});
 
   return (
     <form action={formAction}>
+      <input type="hidden" name="mode" value={mode} />
       <div className="field">
         <label htmlFor="email">Adresse e-mail</label>
         <input id="email" name="email" type="email" autoComplete="email" required />
@@ -22,7 +23,7 @@ export default function LoginForm() {
         </p>
       )}
       <button className="btn btn-block" type="submit" disabled={pending}>
-        {pending ? "Connexion…" : "Se connecter"}
+        {pending ? "Connexion…" : mode === "admin" ? "Accéder à l’administration →" : "Accéder à mon espace →"}
       </button>
     </form>
   );

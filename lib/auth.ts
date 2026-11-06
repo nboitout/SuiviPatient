@@ -4,12 +4,12 @@ import bcrypt from "bcryptjs";
 import { prisma } from "./db";
 import { generateToken, hashToken } from "./tokens";
 import { logAudit } from "./audit";
-import type { User } from "@prisma/client";
+import type { Role, User } from "@prisma/client";
 
 const SESSION_COOKIE = "sp_session";
 const SESSION_HOURS = 12;
 
-export async function login(email: string, password: string): Promise<User | null> {
+export async function login(email: string, password: string, requiredRole?: Role): Promise<User | null> {
   const user = await prisma.user.findUnique({ where: { email: email.toLowerCase().trim() } });
   if (!user) {
     await logAudit(null, "LOGIN", { detail: email, outcome: "UNKNOWN_USER" });
@@ -18,6 +18,10 @@ export async function login(email: string, password: string): Promise<User | nul
   const ok = await bcrypt.compare(password, user.passwordHash);
   if (!ok) {
     await logAudit(user.id, "LOGIN", { outcome: "BAD_PASSWORD" });
+    return null;
+  }
+  if (requiredRole && user.role !== requiredRole) {
+    await logAudit(user.id, "LOGIN", { outcome: "ROLE_DENIED" });
     return null;
   }
   const token = generateToken();

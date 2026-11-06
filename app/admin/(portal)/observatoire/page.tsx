@@ -1,5 +1,7 @@
 import { computeNetworkMetrics, MIN_CELL_SIZE } from "@/lib/aggregate";
 import { FORM_KIND_LABELS } from "@/lib/episodes";
+import { requireAdminPage } from "@/lib/admin-access";
+import RefreshButton from "@/components/RefreshButton";
 
 // Tableau de bord réseau de l'institut (ADM-04, 8.2).
 // Uniquement des données agrégées : aucune donnée de contact patient,
@@ -12,11 +14,12 @@ function pct(v: number | null): string {
 }
 
 export default async function AdminDashboard() {
+  await requireAdminPage();
   const m = await computeNetworkMetrics();
 
   return (
     <>
-      <h1>Observatoire du réseau</h1>
+      <div className="page-heading"><div><p className="eyebrow">Repères collectifs</p><h1>Observatoire du réseau</h1></div><RefreshButton /></div>
       <p className="muted" style={{ maxWidth: 760 }}>
         Données agrégées et pseudonymisées. Ces indicateurs mesurent l&apos;évolution{" "}
         <strong>ressentie par les patients</strong> (amélioration rapportée), pas une efficacité

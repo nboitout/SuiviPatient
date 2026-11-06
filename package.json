@@ -9,6 +9,7 @@
     "lint": "eslint",
     "test": "tsx --test tests/registry.test.ts",
     "test:integration": "tsx --test tests/registry.integration.test.ts",
+    "test:access": "tsx --test tests/access.integration.test.ts",
     "db:migrate": "prisma migrate deploy",
     "db:local": "prisma dev --name rop-registry-local --port 55430 --db-port 55431 --shadow-db-port 55432",
     "db:push": "prisma db push",

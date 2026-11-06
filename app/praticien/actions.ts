@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import QRCode from "qrcode";
 import { prisma } from "@/lib/db";
-import { login, logout, requirePractitioner } from "@/lib/auth";
+import { login, logout, currentUser, requirePractitioner } from "@/lib/auth";
 import { logAudit } from "@/lib/audit";
 import { createCareEpisode } from "@/lib/registry-records";
 import { parseEpisode, RegistryValidationError } from "@/lib/registry";
@@ -23,15 +23,17 @@ export async function loginAction(
 ): Promise<LoginState> {
   const email = String(formData.get("email") ?? "");
   const password = String(formData.get("password") ?? "");
-  const user = await login(email, password);
+  const adminOnly = formData.get("mode") === "admin";
+  const user = await login(email, password, adminOnly ? "ADMIN" : undefined);
   if (!user) return { error: "Identifiants incorrects." };
   if (user.role === "ADMIN") redirect("/admin");
   redirect("/praticien");
 }
 
 export async function logoutAction(): Promise<void> {
+  const user = await currentUser();
   await logout();
-  redirect("/praticien/login");
+  redirect(user?.role === "ADMIN" ? "/admin/login" : "/praticien/login");
 }
 
 export interface ChangePasswordState {
@@ -80,7 +82,7 @@ export async function changeOwnPasswordAction(
   await prisma.authSession.deleteMany({ where: { userId: user.id } });
   await logAudit(user.id, "PASSWORD_CHANGE", { outcome: "OK" });
   await logout();
-  redirect("/praticien/login?pw=changed");
+  redirect(user.role === "ADMIN" ? "/admin/login?pw=changed" : "/praticien/login?pw=changed");
 }
 
 export async function acceptProtocolAction(): Promise<void> {

@@ -42,9 +42,36 @@ Cet aperçu propose les formulaires initial, à 48 h et à 3 semaines. Il utilis
 questions, conserve les réponses uniquement en mémoire et ne contacte jamais l’API de
 soumission. Le suivi réel reste accessible uniquement par lien personnel ou QR code.
 
+## Accueil et espaces professionnels
+
+L’accueil `/` reprend le design patient validé : palette sauge, parcours en trois
+temps, accès au questionnaire personnel par le lien du praticien et aperçu public.
+Les deux entrées professionnelles sont accessibles depuis l’en-tête :
+
+- `/praticien` : espace personnel, dossiers des patients rattachés au compte.
+- `/admin` : vue d’ensemble de l’activité du réseau, réservée au rôle `ADMIN`.
+- `/admin/login` : connexion administrateur dédiée avec le compte existant.
+- `/admin/praticiens` : recherche par nom/e-mail, filtre de certification et gestion des comptes.
+- `/admin/observatoire` : indicateurs agrégés existants et export CSV.
+- `/admin/audit` et `/admin/compte` : traçabilité et mot de passe.
+
+Les pages administratives contrôlent le rôle avant leurs requêtes, en plus du
+contrôle du layout. Une connexion par l’entrée admin exige un compte `ADMIN`.
+Les indicateurs de participation de la vue d’ensemble comptent les questionnaires
+arrivés à échéance, hors annulations. L’observatoire conserve son périmètre existant :
+il ne constitue pas une garantie d’anonymisation et ne donne pas accès aux dossiers
+individuels. Aucune migration ni création automatique de compte n’est nécessaire.
+
+Les contrôles d’accès peuvent être rejoués avec `npm run test:access` : démarrer
+l’application sur une base locale jetable, définir `ACCESS_TEST_BASE_URL` et
+`ACCESS_TEST_DATABASE_URL` vers cette même instance, avec un schéma nommé
+`rop_ui_*` ou `rop_access_*`. Le test refuse les hôtes distants, crée ses propres
+sessions, puis les supprime. Il couvre les visiteurs anonymes, les comptes
+praticiens, les sessions expirées, les pages admin et l’export agrégé.
+
 ## Proposition de design à explorer
 
-La page `/proposition`, liée depuis l’accueil, donne accès aux deux maquettes
+La page `/proposition` conserve les deux maquettes
 interactives du nouveau design : parcours patient (accueil, bureau et mobile),
 puis espace praticien (patients, dossier individuel et observatoire agrégé).
 Les exemples sont entièrement fictifs et n’appellent aucune API patient.

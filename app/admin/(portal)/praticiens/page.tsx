@@ -1,5 +1,7 @@
 import { prisma } from "@/lib/db";
-import { requireAdmin } from "@/lib/auth";
+import { requireAdminPage as requireAdmin } from "@/lib/admin-access";
+import type { CertificationStatus } from "@prisma/client";
+import Link from "next/link";
 import CreatePractitionerForm from "@/components/CreatePractitionerForm";
 import PractitionerStatusSelect from "@/components/PractitionerStatusSelect";
 import ResetPractitionerPassword from "@/components/ResetPractitionerPassword";
@@ -11,11 +13,18 @@ import {
 
 // Registre des praticiens (ADM-01) : invitation, activation, suspension.
 
-export default async function PractitionersPage() {
+export default async function PractitionersPage({ searchParams }: { searchParams: Promise<{ q?: string; status?: string; ajouter?: string }> }) {
   await requireAdmin();
+  const params = await searchParams;
+  const q = (params.q ?? "").trim().slice(0, 120);
+  const status = ["PENDING", "ACTIVE", "SUSPENDED", "REVOKED"].includes(params.status ?? "") ? params.status as CertificationStatus : undefined;
 
   const practitioners = await prisma.user.findMany({
-    where: { role: "PRACTITIONER" },
+    where: {
+      role: "PRACTITIONER",
+      ...(status ? { certificationStatus: status } : {}),
+      ...(q ? { OR: [{ fullName: { contains: q, mode: "insensitive" } }, { email: { contains: q, mode: "insensitive" } }] } : {}),
+    },
     orderBy: { createdAt: "desc" },
     include: {
       _count: {
@@ -37,15 +46,18 @@ export default async function PractitionersPage() {
 
   return (
     <>
-      <h1>Praticiens</h1>
+      <div className="page-heading"><div><p className="eyebrow">Les professionnels du réseau</p><h1>Accompagner vos praticiens.</h1><p className="muted">Retrouvez leurs comptes, leurs profils et leur statut de certification.</p></div><Link href="/admin/praticiens?ajouter=1#ajouter" className="btn">Ajouter un praticien +</Link></div>
 
-      <div className="card" style={{ maxWidth: 560 }}>
-        <h2>Ajouter un praticien certifié</h2>
-        <CreatePractitionerForm />
-      </div>
+      <details className="card invite-panel" id="ajouter" open={params.ajouter === "1"}><summary>Ajouter un praticien certifié</summary><div className="invite-form"><CreatePractitionerForm /></div></details>
 
       <div className="card">
         <h2>Registre ({practitioners.length})</h2>
+        <form className="registry-toolbar" action="/admin/praticiens">
+          <div><label htmlFor="practitioner-search">Nom ou adresse e-mail</label><input type="search" id="practitioner-search" name="q" defaultValue={q} placeholder="Rechercher un praticien…" /></div>
+          <div><label htmlFor="practitioner-status">Certification</label><select id="practitioner-status" name="status" defaultValue={status ?? ""}><option value="">Tous les statuts</option>{Object.entries(CERTIFICATION_LABELS).map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select></div>
+          <button className="btn btn-secondary" type="submit">Filtrer</button>
+          {(q || status) && <Link className="quiet-link" href="/admin/praticiens">Réinitialiser</Link>}
+        </form>
         <div className="table-wrap">
           <table>
             <thead>
@@ -60,6 +72,7 @@ export default async function PractitionersPage() {
               </tr>
             </thead>
             <tbody>
+              {practitioners.length === 0 && <tr><td colSpan={7} className="empty-state">{q || status ? "Aucun praticien ne correspond à ces critères." : "Aucun praticien pour le moment. Ajoutez le premier compte ci-dessus."}</td></tr>}
               {practitioners.map((p) => (
                 <tr key={p.id}>
                   <td>{p.fullName}</td>

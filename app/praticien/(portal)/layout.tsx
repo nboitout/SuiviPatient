@@ -1,7 +1,7 @@
-import Link from "next/link";
 import { redirect } from "next/navigation";
 import { currentUser } from "@/lib/auth";
-import { logoutAction, acceptProtocolAction } from "@/app/praticien/actions";
+import { acceptProtocolAction } from "@/app/praticien/actions";
+import WorkspaceShell from "@/components/WorkspaceShell";
 
 export default async function PortalLayout({
   children,
@@ -10,6 +10,7 @@ export default async function PortalLayout({
 }) {
   const user = await currentUser();
   if (!user) redirect("/praticien/login");
+  if (user.role === "ADMIN") redirect("/admin");
 
   const statusLabels: Record<string, string> = {
     PENDING: "En attente de validation",
@@ -19,29 +20,7 @@ export default async function PortalLayout({
   };
 
   return (
-    <>
-      <header className="topbar">
-        <div className="topbar-inner">
-          <Link href="/praticien" className="topbar-brand">
-            Suivi R.O.P.
-          </Link>
-          <nav aria-label="Navigation principale">
-            <Link href="/praticien">Tableau de bord</Link>
-            <Link href="/praticien/patients">Patients</Link>
-            <Link href="/praticien/nouveau">Créer un suivi</Link>
-            <Link href="/praticien/alertes">Alertes</Link>
-            <Link href="/praticien/compte">Mon compte</Link>
-          </nav>
-          <span className="topbar-spacer" />
-          <span className="muted">{user.fullName}</span>
-          <form action={logoutAction}>
-            <button className="btn btn-secondary btn-small" type="submit">
-              Déconnexion
-            </button>
-          </form>
-        </div>
-      </header>
-      <main className="container-wide">
+    <WorkspaceShell mode="practitioner" fullName={user.fullName}>
         {user.certificationStatus !== "ACTIVE" && (
           <div className="notice notice-warning" role="alert">
             Statut de votre compte :{" "}
@@ -70,7 +49,6 @@ export default async function PortalLayout({
           </div>
         )}
         {children}
-      </main>
-    </>
+    </WorkspaceShell>
   );
 }

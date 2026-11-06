@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Cormorant_Garamond, DM_Sans } from "next/font/google";
 import "./globals.css";
+import "./rop.css";
 
 // Polices de la charte graphique guy-boitout.com, auto-hébergées via next/font
 // (aucune requête vers un CDN tiers depuis le navigateur du patient — PRI-09).

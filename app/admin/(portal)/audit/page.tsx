@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/db";
-import { requireAdmin } from "@/lib/auth";
+import { requireAdminPage as requireAdmin } from "@/lib/admin-access";
 
 // Journal d'audit (ADM-09) : connexions, consultations, exports,
 // actions sur alertes et modifications.
@@ -15,7 +15,7 @@ export default async function AuditPage() {
 
   return (
     <>
-      <h1>Journal d&apos;audit</h1>
+      <p className="eyebrow">Traçabilité du service</p><h1>Journal d&apos;audit</h1>
       <p className="muted">200 dernières entrées.</p>
       <div className="card">
         <div className="table-wrap">
