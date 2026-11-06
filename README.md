@@ -36,6 +36,12 @@ Parcours de démo : connectez-vous comme praticien → « Créer un suivi » →
 généré dans un onglet privé (vue patient, idéalement en mode mobile) → répondez au T0 →
 revenez sur le tableau de bord praticien.
 
+Pour inspecter les questionnaires sans compte ni dossier patient, utiliser le bouton
+**Voir un aperçu du questionnaire patient** sur l’accueil, ou `/questionnaires/apercu`.
+Cet aperçu propose les formulaires initial, à 48 h et à 3 semaines. Il utilise les mêmes
+questions, conserve les réponses uniquement en mémoire et ne contacte jamais l’API de
+soumission. Le suivi réel reste accessible uniquement par lien personnel ou QR code.
+
 ## Architecture
 
 - **Next.js 16 (App Router) + React 19 + TypeScript** — même stack que le site ROP.

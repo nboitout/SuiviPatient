@@ -26,6 +26,12 @@ export default function Home() {
           Utilisez le lien ou le QR code remis par votre praticien pour accéder à votre
           questionnaire. Aucun compte n&apos;est nécessaire.
         </p>
+        <Link href="/questionnaires/apercu" className="btn">
+          Voir un aperçu du questionnaire patient
+        </Link>
+        <p className="field-help">
+          Pour découvrir les questions sans compte. Aucune réponse n’est enregistrée dans cet aperçu.
+        </p>
       </div>
 
       <div className="card">

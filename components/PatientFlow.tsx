@@ -7,16 +7,14 @@ import { useState } from "react";
 import type { FormDef, FieldDef, Answers } from "@/lib/questionnaires";
 import { isFieldVisible } from "@/lib/questionnaires";
 
-interface Props {
-  token: string;
-  form: FormDef;
-  needsConsent: boolean;
-  hasContact: boolean;
-}
+type Props = { form: FormDef } & (
+  | { preview: true; token?: never; needsConsent?: never; hasContact?: never }
+  | { preview?: false; token: string; needsConsent: boolean; hasContact: boolean }
+);
 
 type Step = "consent" | "form" | "done";
 
-export default function PatientFlow({ token, form, needsConsent, hasContact }: Props) {
+export default function PatientFlow({ token, form, needsConsent = false, hasContact = false, preview = false }: Props) {
   const [step, setStep] = useState<Step>(needsConsent ? "consent" : "form");
   const [answers, setAnswers] = useState<Answers>({});
   const [errors, setErrors] = useState<string[]>([]);
@@ -53,6 +51,12 @@ export default function PatientFlow({ token, form, needsConsent, hasContact }: P
     if (missing.length > 0) {
       setErrors(missing);
       document.getElementById(`field-${missing[0]}`)?.scrollIntoView({ behavior: "smooth" });
+      return;
+    }
+    // The public preview never calls the patient API or writes a record.
+    if (preview) {
+      setStep("done");
+      window.scrollTo({ top: 0 });
       return;
     }
     setSubmitting(true);
@@ -198,11 +202,17 @@ export default function PatientFlow({ token, form, needsConsent, hasContact }: P
     return (
       <div style={{ paddingTop: 24 }}>
         <div className="card">
-          <h1>Merci, vos réponses sont enregistrées ✓</h1>
-          <p>
+          <h1>{preview ? "Aperçu terminé" : "Merci, vos réponses sont enregistrées ✓"}</h1>
+          {preview ? (
+            <p>
+              Aucune réponse n’a été envoyée ni enregistrée. Vous pouvez découvrir
+              les autres questionnaires avec les liens ci-dessus. Pour votre suivi
+              personnel, utilisez le lien ou le QR code remis par votre praticien.
+            </p>
+          ) : <p>
             Votre praticien pourra les consulter pour préparer votre suivi. Vous pourrez
             répondre au questionnaire suivant via le même lien lorsque ce sera le moment.
-          </p>
+          </p>}
         </div>
         {safetyMessages.map((msg, i) => (
           <div key={i} className="notice notice-danger" role="alert">
@@ -254,10 +264,12 @@ export default function PatientFlow({ token, form, needsConsent, hasContact }: P
       )}
 
       <button className="btn btn-block" onClick={submit} disabled={submitting}>
-        {submitting ? "Envoi en cours…" : "Envoyer mes réponses"}
+        {submitting ? "Envoi en cours…" : preview ? "Terminer l’aperçu" : "Envoyer mes réponses"}
       </button>
       <p className="muted" style={{ textAlign: "center", marginTop: 10 }}>
-        Vos réponses restent confidentielles et pseudonymisées.
+        {preview
+          ? "Mode aperçu : aucune réponse n’est envoyée ni enregistrée."
+          : "Vos réponses restent confidentielles et pseudonymisées."}
       </p>
     </div>
   );
