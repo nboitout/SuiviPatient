@@ -20,8 +20,12 @@ python <visualize-skill>/scripts/render.py docs/maquettes/suivi-patient/patient.
 python <visualize-skill>/scripts/render.py docs/maquettes/suivi-patient/praticien.fragment.html public/propositions/praticien.html --title "Proposition praticien — Suivi ROP" --force
 ```
 
-Réappliquer le lien de retour et la langue de l’enveloppe si ces commandes sont
-utilisées. Aucun nouveau paquet npm ni service n’est nécessaire pour consulter
+Réappliquer le lien de retour, la langue de l’enveloppe et les liens d’icônes
+(`/favicon.ico`, tailles 16/32/48, et `/apple-icon.png`, taille 180) si ces commandes
+sont utilisées. La directive `img-src` de l’enveloppe autorise `'self'` pour ces
+icônes. L’image source est `Favicon Suivi-Patient.png` à la racine du dépôt ;
+`app/icon.png` fournit également une icône PNG 64 × 64 aux pages de l’application.
+Aucun nouveau paquet npm ni service n’est nécessaire pour consulter
 les exports déjà présents dans le dépôt.
 
 Toutes les réponses et statistiques sont fictives. Les réponses aux questionnaires
